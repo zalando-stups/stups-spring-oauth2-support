@@ -1,0 +1,7 @@
+server:
+    port: 13002
+
+spring:
+    oauth2:
+        resource:
+            tokenInfoUri: http://localhost:${server.port}/tokeninfo

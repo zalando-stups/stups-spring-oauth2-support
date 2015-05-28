@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zalando.stups.oauth2.spring.client;
+package some.test;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
@@ -21,33 +21,22 @@ import org.springframework.security.oauth2.client.resource.UserApprovalRequiredE
 import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 
-import org.zalando.stups.tokens.AccessTokens;
+import org.zalando.stups.oauth2.spring.server.UppercaseOAuth2AccessToken;
 
 /**
- * An implementation of {@link AccessTokenProvider} that delegates to {@link AccessTokens} library.
+ * Just for testing.
  *
  * @author  jbellmann
  */
-public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
+class TestAccessTokenProvider implements AccessTokenProvider {
 
-    private final String serviceId;
+    private final String accessToken;
 
-    private final AccessTokens accessTokens;
-
-    /**
-     * {@link AccessTokenProvider} that is bound to a special client. 'serviceId' will be used to fetch the access_token
-     * from {@link AccessTokens} library.
-     *
-     * @param  serviceId
-     * @param  accessTokens
-     */
-    public StupsTokensAccessTokenProvider(final String serviceId, final AccessTokens accessTokens) {
-        this.serviceId = serviceId;
-        this.accessTokens = accessTokens;
+    public TestAccessTokenProvider(final String accessToken) {
+        this.accessToken = accessToken;
     }
 
     @Override
@@ -55,9 +44,7 @@ public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
             final AccessTokenRequest parameters) throws UserRedirectRequiredException, UserApprovalRequiredException,
         AccessDeniedException {
 
-        // for debugging it is sometimes easier to have a temp var
-        final String accessToken = accessTokens.get(serviceId);
-        return new UpperCaseHeaderToken(accessToken);
+        return new UppercaseOAuth2AccessToken(accessToken);
     }
 
     @Override
@@ -69,39 +56,11 @@ public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
     public OAuth2AccessToken refreshAccessToken(final OAuth2ProtectedResourceDetails resource,
             final OAuth2RefreshToken refreshToken, final AccessTokenRequest request)
         throws UserRedirectRequiredException {
-
-        throw new UnsupportedOperationException("Not Supported 'refreshAccessToken'");
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean supportsRefresh(final OAuth2ProtectedResourceDetails resource) {
         return false;
-    }
-
-    /**
-     * Because {@link #getTokenType()} is used in the header it should return 'Bearer' instead of 'bearer'.
-     *
-     * @author  jbellmann
-     */
-    static class UpperCaseHeaderToken extends DefaultOAuth2AccessToken {
-
-        private static final long serialVersionUID = 1L;
-
-        UpperCaseHeaderToken(final OAuth2AccessToken accessToken) {
-            super(accessToken);
-        }
-
-        public UpperCaseHeaderToken(final String token) {
-            super(token);
-        }
-
-        /**
-         * because this will be used in the header it should start with 'B' instead of 'b'.
-         */
-        @Override
-        public String getTokenType() {
-            return OAuth2AccessToken.BEARER_TYPE;
-        }
-
     }
 }

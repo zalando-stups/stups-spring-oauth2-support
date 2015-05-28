@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -158,7 +157,8 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         logger.info("Getting token info from: " + tokenInfoEndpointUrl);
 
         OAuth2RestOperations restTemplate = this.restTemplate;
-        restTemplate.getOAuth2ClientContext().setAccessToken(new DefaultOAuth2AccessToken(accessToken));
+// restTemplate.getOAuth2ClientContext().setAccessToken(new DefaultOAuth2AccessToken(accessToken));
+        restTemplate.getOAuth2ClientContext().setAccessToken(new UppercaseOAuth2AccessToken(accessToken));
 
         @SuppressWarnings("rawtypes")
         Map map = restTemplate.getForEntity(tokenInfoEndpointUrl, Map.class).getBody();
