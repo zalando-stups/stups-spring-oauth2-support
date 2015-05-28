@@ -10,7 +10,7 @@ This library provides an implementation of ResourceServerTokenServices.
     }
 ```
 
-Or is a bit more code:
+Or some more code:
 
 ```
 @Configuration
