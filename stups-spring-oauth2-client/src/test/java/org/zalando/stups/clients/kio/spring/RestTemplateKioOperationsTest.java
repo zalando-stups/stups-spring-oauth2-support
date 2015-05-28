@@ -87,7 +87,7 @@ public class RestTemplateKioOperationsTest {
 
     //J-
     @Test
-    public void getRefoles() {
+    public void getApps() {
         when(accessTokens.get(Mockito.any(String.class))).thenReturn("1234567890");
         mockServer.expect(requestTo(baseUrl + "/apps"))
                     .andExpect(method(GET))
