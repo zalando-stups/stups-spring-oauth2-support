@@ -1,6 +1,7 @@
 ## Spring-OAuth2 STUPS Support
 
 [![Build Status](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support.svg?branch=master)](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support)
+[![Coverage Status](https://coveralls.io/repos/zalando-stups/stups-spring-oauth2-support/badge.svg)](https://coveralls.io/r/zalando-stups/stups-spring-oauth2-support)
 
 ###Dependencies
 
