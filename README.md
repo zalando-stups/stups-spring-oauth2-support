@@ -30,7 +30,9 @@ For OAuth2 on the server use this one:
 
 ###Usage
 
-TODO
+[Client:](https://github.com/zalando-stups/stups-spring-oauth2-support/tree/master/stups-spring-oauth2-client)
+
+[Server:](https://github.com/zalando-stups/stups-spring-oauth2-support/tree/master/stups-spring-oauth2-server)
 
 ## License
 
