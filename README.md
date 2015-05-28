@@ -2,7 +2,30 @@
 
 [![Build Status](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support.svg?branch=master)](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support)
 
-TODO
+###Dependencies
+
+![Maven Central](https://img.shields.io/maven-central/v/org.zalando.stups/stups-spring-oauth2-support.svg)
+
+When implementing clients with Spring you can use the following:
+
+```
+    <dependency>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>stups-spring-oauth2-client</artifactId>
+        <version>${version}</version>
+    </dependency>
+```
+
+
+For OAuth2 on the server use this one:
+
+```
+    <dependency>
+        <groupId>org.zalando.stups</groupId>
+        <artifactId>stups-spring-oauth2-server</artifactId>
+        <version>${version}</version>
+    </dependency>
+```
 
 ###Usage
 
