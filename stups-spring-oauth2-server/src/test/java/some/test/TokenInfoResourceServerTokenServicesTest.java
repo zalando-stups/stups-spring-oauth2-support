@@ -37,6 +37,8 @@ import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
+import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -48,11 +50,15 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.http.AccessTokenRequiredException;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
 
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.springframework.web.client.RestOperations;
+
+import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.tokens.AccessTokens;
 
 import some.test.controller.SecuredResource;
 import some.test.controller.TokeninfoEndpoint;
@@ -90,13 +96,35 @@ public class TokenInfoResourceServerTokenServicesTest {
     public void invokeOAuthSecuredServiceWithInvalidToken() {
         RestOperations restOperations = buildClient("error");
 
-        ResponseEntity<String> responseEntity = restOperations.getForEntity("http://localhost:" + port
-                    + "/secured/hello/bello", String.class);
+        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+    }
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(401);
+    @Test(expected = AccessTokenRequiredException.class)
+    public void invokeOAuthSecuredServiceWithInvalidTokenNoUid() {
+        RestOperations restOperations = buildClient("no-uid");
+
+        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+    }
+
+    @Test(expected = AccessTokenRequiredException.class)
+    public void invokeOAuthSecuredServiceWithInvalidTokenEmptyUid() {
+        RestOperations restOperations = buildClient("empty-uid");
+
+        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+    }
+
+    // TODO, maybe we should throw InvalidToken if 'scope' does not exist?
+    @Test(expected = InsufficientScopeException.class)
+    public void invokeOAuthSecuredServiceWithInvalidTokenNoScope() {
+        RestOperations restOperations = buildClient("no-scope");
+
+        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
     }
 
     protected RestOperations buildClient(final String token) {
+
+        AccessTokens accessTokens = Mockito.mock(AccessTokens.class);
+        Mockito.when(accessTokens.get(Mockito.eq("example"))).thenReturn(token);
 
         BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
         resource.setClientId("what_here");
@@ -104,7 +132,8 @@ public class TokenInfoResourceServerTokenServicesTest {
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new TestAccessTokenProvider(token));
+// restTemplate.setAccessTokenProvider(new TestAccessTokenProvider(token));
+        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("example", accessTokens));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return restTemplate;

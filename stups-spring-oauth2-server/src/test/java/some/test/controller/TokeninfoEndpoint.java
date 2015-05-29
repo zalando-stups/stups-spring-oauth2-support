@@ -61,11 +61,21 @@ public class TokeninfoEndpoint {
         logger.warn("------- FAKE_TOKENINFO -------");
         logger.warn("Authorization-header : {}", authorizationHeader);
 
+        String accessTokenFromHeader = authorizationHeader.replace("Bearer ", "");
         Map<String, Object> result = null;
         if (authorizationHeader.contains("error")) {
             result = buildErrorResult();
+        } else if (authorizationHeader.contains("no-uid")) {
+            result = buildAccessToken(accessTokenFromHeader);
+            result.remove("uid");
+        } else if (authorizationHeader.contains("empty-uid")) {
+            result = buildAccessToken(accessTokenFromHeader);
+            result.put("uid", "");
+        } else if (authorizationHeader.contains("no-scope")) {
+            result = buildAccessToken(accessTokenFromHeader);
+            result.remove("scope");
         } else {
-            result = buildAccessToken();
+            result = buildAccessToken(accessTokenFromHeader);
         }
 
         return result;
@@ -78,14 +88,15 @@ public class TokeninfoEndpoint {
         return result;
     }
 
-    protected Map<String, Object> buildAccessToken() {
+    protected Map<String, Object> buildAccessToken(final String accessTokenFromHeader) {
         Map<String, Object> result = Maps.newHashMap();
         result.put("uid", "klaus.tester");
-        result.put("access_token", "123456789-987654321");
+        result.put("access_token", accessTokenFromHeader);
         result.put("token_type", "Bearer");
         result.put("expires_in", 5000);
         result.put("scope", Lists.newArrayList("simpleScope", "extrascope", "testscope"));
         result.put("testscope", Boolean.TRUE);
+        result.put("simpleScope", Boolean.FALSE);
 
         return result;
     }

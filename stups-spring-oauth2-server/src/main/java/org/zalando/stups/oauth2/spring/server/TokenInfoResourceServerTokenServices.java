@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -35,6 +34,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.util.StringUtils;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the hood it takes the 'access_token' from the
@@ -46,6 +46,8 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
+    private static final String UID_SCOPE = "uid";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected String tokenInfoEndpointUrl;
@@ -53,6 +55,8 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     protected String clientId;
 
     private OAuth2RestOperations restTemplate;
+
+    private boolean throwExceptionOnEmptyUid = true;
 
     /**
      * Specify 'tokenInfoEndpointUrl' and 'clientId' to be used by this component.
@@ -92,11 +96,43 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         // at the moment there is other way
         Set<String> scopes = getScopesWithPermissionTrueFromMap(map);
 
+        scopes = validateUidScope(scopes, map);
+
         //
         OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
         return new OAuth2Authentication(request, user);
     }
 
+    protected Set<String> validateUidScope(final Set<String> scopes, final Map<String, Object> map) {
+        Set<String> result = new HashSet<String>(scopes);
+        String uidValue = (String) map.get(UID_SCOPE);
+
+        if (StringUtils.hasText(uidValue)) {
+            result.add(UID_SCOPE);
+        } else {
+            if (isThrowExceptionOnEmptyUid()) {
+                throw new InvalidTokenException("'uid' in accessToken should never be empty!");
+            }
+        }
+
+        return result;
+    }
+
+    public boolean isThrowExceptionOnEmptyUid() {
+        return throwExceptionOnEmptyUid;
+    }
+
+    public void setThrowExceptionOnEmptyUid(final boolean throwExceptionOnEmptyUid) {
+        this.throwExceptionOnEmptyUid = throwExceptionOnEmptyUid;
+    }
+
+    /**
+     * Only put scopes with value 'true' into result.
+     *
+     * @param   map
+     *
+     * @return  validated scopes
+     */
     protected Set<String> getScopesWithPermissionTrueFromMap(final Map<String, Object> map) {
         Set<String> scopes = new HashSet<String>();
         Set<String> permissions = new HashSet<String>();
@@ -136,7 +172,9 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             }
         }
 
-        return "unknown";
+        throw new InvalidTokenException("No 'uid'-scope found in access-token!");
+
+        // return "unknown";
     }
 
     /**
@@ -145,7 +183,11 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
      * @return
      */
     protected String[] getPossibleUserIdKeys() {
-        return new String[] {"uid", "user", "username", "userid", "user_id", "login", "id", "name"};
+
+        // we only use 'uid' at the moment for userids
+        return new String[] {UID_SCOPE};
+
+// return new String[] {"uid", "user", "username", "userid", "user_id", "login", "id", "name"};
     }
 
     @Override

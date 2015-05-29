@@ -15,9 +15,16 @@
  */
 package some.test.controller;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.zalando.stups.oauth2.spring.client.AccessTokenUtils;
 
 /**
  * The Resource we secured with OAuth2.
@@ -27,8 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SecuredResource {
 
+    private final Logger logger = LoggerFactory.getLogger(SecuredResource.class);
+
     @RequestMapping("/secured/hello/{term}")
     public String hello(@PathVariable final String term) {
+        Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        logger.info("SECURED-RESOURCE ACCESSED WITH TOKEN : {}", accessToken.get());
         return "hello " + term;
     }
+
 }

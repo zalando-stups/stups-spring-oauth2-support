@@ -15,6 +15,8 @@
  */
 package org.zalando.stups.oauth2.spring.client;
 
+import java.util.Optional;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.resource.UserApprovalRequiredException;
@@ -55,9 +57,18 @@ public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
             final AccessTokenRequest parameters) throws UserRedirectRequiredException, UserApprovalRequiredException,
         AccessDeniedException {
 
+        Optional<String> optionalAccessToken = getAccessTokenFromSecurityContext();
+        if (optionalAccessToken.isPresent()) {
+            return new UpperCaseHeaderToken(optionalAccessToken.get());
+        }
+
         // for debugging it is sometimes easier to have a temp var
         final String accessToken = accessTokens.get(serviceId);
         return new UpperCaseHeaderToken(accessToken);
+    }
+
+    protected Optional<String> getAccessTokenFromSecurityContext() {
+        return AccessTokenUtils.getAccessTokenFromSecurityContext();
     }
 
     @Override
