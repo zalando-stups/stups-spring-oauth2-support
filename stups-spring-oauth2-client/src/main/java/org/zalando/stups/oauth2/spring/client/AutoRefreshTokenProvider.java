@@ -24,12 +24,12 @@ import org.zalando.stups.tokens.AccessTokens;
  *
  * @author  jbellmann
  */
-public class StupsTokensTokenProvider implements TokenProvider {
+public class AutoRefreshTokenProvider implements TokenProvider {
 
     private final String serviceId;
     private final AccessTokens accessTokens;
 
-    public StupsTokensTokenProvider(final String serviceId, final AccessTokens accessTokens) {
+    public AutoRefreshTokenProvider(final String serviceId, final AccessTokens accessTokens) {
         this.serviceId = serviceId;
         this.accessTokens = accessTokens;
     }

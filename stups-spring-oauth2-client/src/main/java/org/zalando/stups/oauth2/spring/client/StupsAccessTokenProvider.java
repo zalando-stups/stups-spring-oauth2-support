@@ -36,7 +36,7 @@ import org.zalando.stups.tokens.AccessTokens;
  *
  * @author  jbellmann
  */
-public class StupsTokensAccessTokenProvider extends AbstractStupsAccessTokenProvider {
+public class StupsAccessTokenProvider extends AbstractStupsAccessTokenProvider {
 
     private TokenProvider tokenProvider;
 
@@ -47,7 +47,7 @@ public class StupsTokensAccessTokenProvider extends AbstractStupsAccessTokenProv
      * @param  serviceId
      * @param  accessTokens
      */
-    public StupsTokensAccessTokenProvider(final TokenProvider tokenProvider) {
+    public StupsAccessTokenProvider(final TokenProvider tokenProvider) {
         Assert.notNull(tokenProvider, "TokenProvider should never be null.");
         this.tokenProvider = tokenProvider;
     }

@@ -32,7 +32,7 @@ import org.zalando.stups.tokens.AccessTokens;
 /**
  * @author  jbellmann
  */
-public class StupsTokensAccessTokenProviderTest {
+public class StupsAccessTokenProviderTest {
 
     private static final String TEST_SERVICE_ID = "testServiceId";
     private static final String DEFAULT_TOKEN = "123456789";
@@ -48,8 +48,8 @@ public class StupsTokensAccessTokenProviderTest {
     public void setUp() {
         accessTokens = Mockito.mock(AccessTokens.class);
 
-        StupsTokensTokenProvider first = new StupsTokensTokenProvider(TEST_SERVICE_ID, accessTokens);
-        accessTokenProvider = new StupsTokensAccessTokenProvider(first);
+        AutoRefreshTokenProvider first = new AutoRefreshTokenProvider(TEST_SERVICE_ID, accessTokens);
+        accessTokenProvider = new StupsAccessTokenProvider(first);
 
         details = Mockito.mock(OAuth2ProtectedResourceDetails.class);
 
@@ -71,6 +71,11 @@ public class StupsTokensAccessTokenProviderTest {
     public void supportsResourceShouldBeTrue() {
 
         assertThat(accessTokenProvider.supportsResource(details)).isTrue();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void onlyNonNullInConstructor() {
+        new StupsAccessTokenProvider(null);
     }
 
 }

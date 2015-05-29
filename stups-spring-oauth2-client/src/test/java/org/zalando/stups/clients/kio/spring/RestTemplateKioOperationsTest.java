@@ -48,8 +48,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
 import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
-import org.zalando.stups.oauth2.spring.client.StupsTokensTokenProvider;
+import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
+import org.zalando.stups.oauth2.spring.client.SecurityContextTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.TokenProviderChain;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -77,10 +79,11 @@ public class RestTemplateKioOperationsTest {
 
         restTemplate = new OAuth2RestTemplate(resource);
 
-        StupsTokensTokenProvider first = new StupsTokensTokenProvider("kio", accessTokens);
+        AutoRefreshTokenProvider first = new AutoRefreshTokenProvider("kio", accessTokens);
 
-        // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider(first));
+        // here is the token-provider chain in use
+        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
+                new TokenProviderChain(new SecurityContextTokenProvider(), first)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         client = new RestTemplateKioOperations(restTemplate, baseUrl);
