@@ -49,6 +49,7 @@ import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
 import org.zalando.stups.clients.kio.Version;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsTokensTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -76,8 +77,10 @@ public class RestTemplateKioOperationsTest {
 
         restTemplate = new OAuth2RestTemplate(resource);
 
+        StupsTokensTokenProvider first = new StupsTokensTokenProvider("kio", accessTokens);
+
         // here is the token-provider
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("kio", accessTokens));
+        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider(first));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         client = new RestTemplateKioOperations(restTemplate, baseUrl);

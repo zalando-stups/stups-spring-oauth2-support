@@ -47,7 +47,9 @@ public class StupsTokensAccessTokenProviderTest {
     @Before
     public void setUp() {
         accessTokens = Mockito.mock(AccessTokens.class);
-        accessTokenProvider = new StupsTokensAccessTokenProvider(TEST_SERVICE_ID, accessTokens);
+
+        StupsTokensTokenProvider first = new StupsTokensTokenProvider(TEST_SERVICE_ID, accessTokens);
+        accessTokenProvider = new StupsTokensAccessTokenProvider(first);
 
         details = Mockito.mock(OAuth2ProtectedResourceDetails.class);
 

@@ -25,20 +25,20 @@ import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2RefreshToken;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+
+import org.springframework.util.Assert;
 
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
- * An implementation of {@link AccessTokenProvider} that delegates to {@link AccessTokens} library.
+ * An implementation of {@link AccessTokenProvider} that delegates to {@link TokenProvider}.
  *
  * @author  jbellmann
  */
-public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
+public class StupsTokensAccessTokenProvider extends AbstractStupsAccessTokenProvider {
 
-    private final String serviceId;
-
-    private final AccessTokens accessTokens;
+    private TokenProvider tokenProvider;
 
     /**
      * {@link AccessTokenProvider} that is bound to a special client. 'serviceId' will be used to fetch the access_token
@@ -47,46 +47,26 @@ public class StupsTokensAccessTokenProvider implements AccessTokenProvider {
      * @param  serviceId
      * @param  accessTokens
      */
-    public StupsTokensAccessTokenProvider(final String serviceId, final AccessTokens accessTokens) {
-        this.serviceId = serviceId;
-        this.accessTokens = accessTokens;
+    public StupsTokensAccessTokenProvider(final TokenProvider tokenProvider) {
+        Assert.notNull(tokenProvider, "TokenProvider should never be null.");
+        this.tokenProvider = tokenProvider;
     }
 
+    /**
+     * Delegates to {@link TokenProvider}s.
+     */
     @Override
     public OAuth2AccessToken obtainAccessToken(final OAuth2ProtectedResourceDetails details,
             final AccessTokenRequest parameters) throws UserRedirectRequiredException, UserApprovalRequiredException,
         AccessDeniedException {
 
-        Optional<String> optionalAccessToken = getAccessTokenFromSecurityContext();
-        if (optionalAccessToken.isPresent()) {
-            return new UpperCaseHeaderToken(optionalAccessToken.get());
+        // for debugging it is sometimes easier to have a temp var
+        Optional<String> accessToken = tokenProvider.getToken();
+        if (accessToken.isPresent()) {
+            return new UpperCaseHeaderToken(accessToken.get());
         }
 
-        // for debugging it is sometimes easier to have a temp var
-        final String accessToken = accessTokens.get(serviceId);
-        return new UpperCaseHeaderToken(accessToken);
-    }
-
-    protected Optional<String> getAccessTokenFromSecurityContext() {
-        return AccessTokenUtils.getAccessTokenFromSecurityContext();
-    }
-
-    @Override
-    public boolean supportsResource(final OAuth2ProtectedResourceDetails resource) {
-        return true;
-    }
-
-    @Override
-    public OAuth2AccessToken refreshAccessToken(final OAuth2ProtectedResourceDetails resource,
-            final OAuth2RefreshToken refreshToken, final AccessTokenRequest request)
-        throws UserRedirectRequiredException {
-
-        throw new UnsupportedOperationException("Not Supported 'refreshAccessToken'");
-    }
-
-    @Override
-    public boolean supportsRefresh(final OAuth2ProtectedResourceDetails resource) {
-        return false;
+        throw new OAuth2Exception("No 'token' provided by tokenproviders");
     }
 
     /**

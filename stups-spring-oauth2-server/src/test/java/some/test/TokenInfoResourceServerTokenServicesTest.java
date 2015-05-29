@@ -58,6 +58,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestOperations;
 
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.oauth2.spring.client.StupsTokensTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
 
 import some.test.controller.SecuredResource;
@@ -131,9 +132,11 @@ public class TokenInfoResourceServerTokenServicesTest {
 
         OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
 
+        StupsTokensTokenProvider first = new StupsTokensTokenProvider("example", accessTokens);
+
         // here is the token-provider
 // restTemplate.setAccessTokenProvider(new TestAccessTokenProvider(token));
-        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider("example", accessTokens));
+        restTemplate.setAccessTokenProvider(new StupsTokensAccessTokenProvider(first));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return restTemplate;
