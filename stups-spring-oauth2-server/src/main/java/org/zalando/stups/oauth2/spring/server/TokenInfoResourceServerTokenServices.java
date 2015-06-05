@@ -151,8 +151,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             for (String scope : scopes) {
                 Object permission = map.get(scope);
                 if (permission != null) {
-                    Boolean b = (Boolean) permission;
-                    if (Boolean.TRUE.equals(b)) {
+                    if (Boolean.parseBoolean(permission.toString())) {
                         permissions.add(scope);
                     }
                 }
