@@ -57,3 +57,9 @@ To get this easily to work in a Spring-Boot application you should have a look a
 
 This [implementation](https://github.com/zalando-stups/stups-spring-oauth2-support/blob/master/stups-spring-oauth2-client/src/main/java/org/zalando/stups/oauth2/spring/client/SecurityContextTokenProvider.java) is useful when your application/(micro)service is somewhere in between of an request-flow initiated by an
 'real' user or another service that are already authenticated and authorized when it (the request) goes through your application (you have security in place, right?). Then we take the access-token from Springs SecurityContext to make the next server-hop when requesting another service via http.
+
+#### How to implement clients with Springs-RestTemplate?
+
+Maybe you will have a look at our [kio-client-java](https://github.com/zalando-stups/kio-client-java) to easily use your client-implementation with or without OAuth2 working.
+
+Also have a look at [riptide](https://github.com/zalando/riptide). Looks amazing. ;-)
