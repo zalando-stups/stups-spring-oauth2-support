@@ -18,7 +18,7 @@ Maybe it is enough to show you some code. Here is a snippet from the [fullstop-A
 
     private RestOperations buildOAuth2RestTemplate(String tokenName) {
         final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        // we call these service from 'fullstop', so we put our application name here
+        // we call these services from 'fullstop', so we put our application name here
         resource.setClientId("fullstop");
 
         // because we want to do OAuth2, we use the OAuth2RestTemplate implementation

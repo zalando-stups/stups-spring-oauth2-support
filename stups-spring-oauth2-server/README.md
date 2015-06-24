@@ -31,9 +31,6 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER)
             .and()
-                .requestMatchers()
-                    .antMatchers("/secured/**")
-            .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/secured/**").access("#oauth2.hasScope('testscope')");
         //J+
