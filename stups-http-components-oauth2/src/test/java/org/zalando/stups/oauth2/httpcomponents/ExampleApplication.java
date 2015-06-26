@@ -38,11 +38,12 @@ public class ExampleApplication {
         @RequestMapping("/test")
         @ResponseBody
         public String test(final HttpServletRequest servletRequest) {
-            String accessToken = servletRequest.getHeader("access_token");
+            String accessToken = servletRequest.getHeader("Authorization");
             if (accessToken == null || accessToken.trim().isEmpty()) {
                 return "FAILED";
             }
 
+            accessToken = accessToken.replace("Bearer ", "");
             return accessToken;
         }
     }

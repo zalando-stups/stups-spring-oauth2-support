@@ -22,7 +22,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
-
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -30,6 +29,8 @@ import org.zalando.stups.tokens.AccessTokens;
  */
 public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
 
+    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    private static final String BEARER = "Bearer ";
     private final String tokenId;
     private final AccessTokens accessTokens;
 
@@ -44,7 +45,10 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
         try {
-            request.setHeader("access_token", accessTokens.get(tokenId));
+            StringBuilder sb = new StringBuilder();
+            sb.append(BEARER);
+            sb.append(accessTokens.get(tokenId));
+            request.setHeader(AUTHORIZATION_HEADER_NAME, sb.toString());
         } catch (Exception e) {
             throw new HttpException("Unable to place header 'access_token' into request.", e);
         }

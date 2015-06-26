@@ -35,6 +35,7 @@ import org.zalando.stups.tokens.AccessTokens;
  */
 public class AccessTokensRequestInterceptorTest {
 
+    private static final String AUTHORIZATION = "Authorization";
     private HttpContext httpContext;
     private AccessTokens accessTokens;
 
@@ -74,9 +75,9 @@ public class AccessTokensRequestInterceptorTest {
 
         interceptor.process(request, httpContext);
 
-        Assertions.assertThat(request.getHeaders("access_token")).isNotEmpty();
+        Assertions.assertThat(request.getHeaders(AUTHORIZATION)).isNotEmpty();
 
-        Assertions.assertThat(request.getHeaders("access_token")[0].getValue()).isEqualTo("TEST_TOKEN");
+        Assertions.assertThat(request.getHeaders(AUTHORIZATION)[0].getValue()).isEqualTo("Bearer TEST_TOKEN");
 
         Mockito.verify(accessTokens, Mockito.atMost(1)).get(Mockito.any());
 
