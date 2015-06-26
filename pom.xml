@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups.build</groupId>
         <artifactId>stups-parent</artifactId>
-        <version>4</version>
+        <version>6</version>
         <relativePath />
     </parent>
     <groupId>org.zalando.stups</groupId>
@@ -14,6 +14,7 @@
     <modules>
         <module>stups-spring-oauth2-client</module>
         <module>stups-spring-oauth2-server</module>
+        <module>stups-http-components-oauth2</module>
     </modules>
 
     <properties>
@@ -22,6 +23,9 @@
         <spring.security.oauth2>2.0.7.RELEASE</spring.security.oauth2>
         <guava.version>18.0</guava.version>
         <assertj.version>3.0.0</assertj.version>
+        <mockito.version>1.10.19</mockito.version>
+
+        <stups-tokens.version>0.7.0</stups-tokens.version>
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
@@ -42,6 +46,16 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>tokens</artifactId>
+                <version>${stups-tokens.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
