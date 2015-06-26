@@ -21,6 +21,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 import org.zalando.stups.tokens.AccessTokens;
 
@@ -33,6 +34,9 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     private final AccessTokens accessTokens;
 
     public AccessTokensRequestInterceptor(final String tokenId, final AccessTokens accessTokens) {
+        Args.check(tokenId != null, "'tokenId' should never be null");
+        Args.check(accessTokens != null, "'accessTokens' should never be null");
+        Args.check(!tokenId.trim().isEmpty(), "'tokenId' should never be empty");
         this.tokenId = tokenId;
         this.accessTokens = accessTokens;
     }

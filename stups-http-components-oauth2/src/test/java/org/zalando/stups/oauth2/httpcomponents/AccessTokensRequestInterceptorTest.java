@@ -36,10 +36,32 @@ import org.zalando.stups.tokens.AccessTokens;
 public class AccessTokensRequestInterceptorTest {
 
     private HttpContext httpContext;
+    private AccessTokens accessTokens;
 
     @Before
     public void setUp() {
         httpContext = Mockito.mock(HttpContext.class);
+        accessTokens = Mockito.mock(AccessTokens.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void initializeWithNullTokenIdShouldFail() {
+        new AccessTokensRequestInterceptor(null, accessTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void initializeWithEmptyTokenIdShouldFail() {
+        new AccessTokensRequestInterceptor("", accessTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void initializeWithWhitespaceTokenIdShouldFail() {
+        new AccessTokensRequestInterceptor("  ", accessTokens);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void initializeWithNullAccessTokensShouldFail() {
+        new AccessTokensRequestInterceptor("kio", null);
     }
 
     @Test

@@ -112,6 +112,7 @@
                     <jacocoReports>
                         <jacocoReport>stups-spring-oauth2-client/target/site/jacoco/jacoco.xml</jacocoReport>
                         <jacocoReport>stups-spring-oauth2-server/target/site/jacoco/jacoco.xml</jacocoReport>
+                        <jacocoReport>stups-http-components-oauth2/target/site/jacoco/jacoco.xml</jacocoReport>
                     </jacocoReports>
                 </configuration>
             </plugin>
