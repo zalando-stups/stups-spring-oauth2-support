@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import org.springframework.http.HttpMethod;
 
@@ -28,6 +29,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 
+import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
+import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 /**
@@ -62,10 +65,19 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
         //J+
     }
 
+    @Profile("defaultAuthentication")
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here");
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here",
+                new DefaultAuthenticationExtractor());
+    }
+
+    @Profile("laxAuthentication")
+    @Bean
+    public ResourceServerTokenServices laxResourceTokenServices() {
+
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here", new LaxAuthenticationExtractor());
     }
 
 }
