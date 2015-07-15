@@ -15,7 +15,7 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,9 +49,8 @@ public class LaxAuthenticationExtractor extends AbstractAuthenticationExtractor 
         try {
             Object scopeValue = map.get("scope");
             if (scopeValue != null) {
-                if (scopeValue instanceof ArrayList) {
-                    ArrayList<String> scopeValueList = (ArrayList<String>) scopeValue;
-                    scopes.addAll(scopeValueList);
+                if (scopeValue instanceof Collection<?>) {
+                    scopes.addAll((Collection<String>) scopeValue);
                 } else {
                     logger.warn("scope-value is {}", scopeValue.getClass().getName());
                 }
