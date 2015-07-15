@@ -52,8 +52,8 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
 
         RestOperations restOperations = buildClient("123456789");
 
-        ResponseEntity<String> responseEntity = restOperations.getForEntity("http://localhost:" + port
-                    + "/secured/hello/bello", String.class);
+        ResponseEntity<String> responseEntity = restOperations.getForEntity(getBasePath() + "/secured/hello/bello",
+                String.class);
 
         //
         assertThat(responseEntity.getBody()).isEqualTo("hello bello");
@@ -64,21 +64,21 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
     public void invokeOAuthSecuredServiceWithInvalidToken() {
         RestOperations restOperations = buildClient("error");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
     @Test(expected = AccessTokenRequiredException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenNoUid() {
         RestOperations restOperations = buildClient("no-uid");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
     @Test(expected = AccessTokenRequiredException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenEmptyUid() {
         RestOperations restOperations = buildClient("empty-uid");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
     // TODO, maybe we should throw InvalidToken if 'scope' does not exist?
@@ -86,7 +86,7 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
     public void invokeOAuthSecuredServiceWithInvalidTokenNoScope() {
         RestOperations restOperations = buildClient("no-scope");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
     protected RestOperations buildClient(final String token) {
@@ -110,4 +110,7 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
         return restTemplate;
     }
 
+    protected String getBasePath() {
+        return "http://localhost:" + port;
+    }
 }

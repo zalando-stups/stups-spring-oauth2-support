@@ -18,6 +18,7 @@ package some.test;
 import org.assertj.core.api.Assertions;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
@@ -29,6 +30,8 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import org.springframework.web.client.RestOperations;
 
 import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
@@ -58,5 +61,19 @@ public class LaxTokenInfoResourceServerTokenServicesTest extends AbstractTokenIn
         Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isNotNull();
         Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isExactlyInstanceOf(
             LaxAuthenticationExtractor.class);
+    }
+
+    @Test
+    public void invokeOAuthSecuredServiceWithLaxAuthorization() {
+        RestOperations restOperations = buildClient("lax");
+
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+    }
+
+    @Test
+    public void invokeOAuthSecuredServiceWithLaxAuthorizationAndTheValueSetToFalse() {
+        RestOperations restOperations = buildClient("lax-with-false");
+
+        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 }
