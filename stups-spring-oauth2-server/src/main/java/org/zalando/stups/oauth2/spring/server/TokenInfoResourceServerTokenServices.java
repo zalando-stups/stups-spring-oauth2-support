@@ -15,26 +15,20 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-import org.springframework.util.StringUtils;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the hood it takes the 'access_token' from the
@@ -46,8 +40,6 @@ import org.springframework.util.StringUtils;
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
-    private static final String UID_SCOPE = "uid";
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected String tokenInfoEndpointUrl;
@@ -56,7 +48,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
     private OAuth2RestOperations restTemplate;
 
-    private boolean throwExceptionOnEmptyUid = true;
+    private final AuthenticationExtractor authenticationExtractor;
 
     /**
      * Specify 'tokenInfoEndpointUrl' and 'clientId' to be used by this component.
@@ -65,8 +57,14 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
      * @param  clientId
      */
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
+        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor());
+    }
+
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
+            final AuthenticationExtractor authenticationExtractor) {
         this.tokenInfoEndpointUrl = tokenInfoEndpointUrl;
         this.clientId = clientId;
+        this.authenticationExtractor = authenticationExtractor;
 
         //
         BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
@@ -85,108 +83,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             throw new InvalidTokenException(accessToken);
         }
 
-        return extractAuthentication(map);
-    }
-
-    protected OAuth2Authentication extractAuthentication(final Map<String, Object> map) {
-        UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(getPrincipal(map), "N/A",
-                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
-        user.setDetails(map);
-
-        // at the moment there is other way
-        Set<String> scopes = getScopesWithPermissionTrueFromMap(map);
-
-        scopes = validateUidScope(scopes, map);
-
-        //
-        OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
-        return new OAuth2Authentication(request, user);
-    }
-
-    protected Set<String> validateUidScope(final Set<String> scopes, final Map<String, Object> map) {
-        Set<String> result = new HashSet<String>(scopes);
-        String uidValue = (String) map.get(UID_SCOPE);
-
-        if (StringUtils.hasText(uidValue)) {
-            result.add(UID_SCOPE);
-        } else {
-            if (isThrowExceptionOnEmptyUid()) {
-                throw new InvalidTokenException("'uid' in accessToken should never be empty!");
-            }
-        }
-
-        return result;
-    }
-
-    public boolean isThrowExceptionOnEmptyUid() {
-        return throwExceptionOnEmptyUid;
-    }
-
-    public void setThrowExceptionOnEmptyUid(final boolean throwExceptionOnEmptyUid) {
-        this.throwExceptionOnEmptyUid = throwExceptionOnEmptyUid;
-    }
-
-    /**
-     * Only put scopes with value 'true' into result.
-     *
-     * @param   map
-     *
-     * @return  validated scopes
-     */
-    protected Set<String> getScopesWithPermissionTrueFromMap(final Map<String, Object> map) {
-        Set<String> scopes = new HashSet<String>();
-        Set<String> permissions = new HashSet<String>();
-        try {
-            Object scopeValue = map.get("scope");
-            if (scopeValue != null) {
-                if (scopeValue instanceof ArrayList) {
-                    ArrayList<String> scopeValueList = (ArrayList<String>) scopeValue;
-                    scopes.addAll(scopeValueList);
-                } else {
-                    logger.warn("scope-value is {}", scopeValue.getClass().getName());
-                }
-            }
-
-            // important part, check the scope has the permission, indicated by 'true' as value
-            for (String scope : scopes) {
-                Object permission = map.get(scope);
-                if (permission != null) {
-                    if (Boolean.parseBoolean(permission.toString())) {
-                        permissions.add(scope);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to get 'scope' value from map", e);
-        }
-
-        return permissions;
-    }
-
-    protected Object getPrincipal(final Map<String, Object> map) {
-        for (String key : getPossibleUserIdKeys()) {
-            if (map.containsKey(key)) {
-                return map.get(key);
-            }
-        }
-
-        throw new InvalidTokenException("No 'uid'-scope found in access-token!");
-
-        // return "unknown";
-    }
-
-    /**
-     * There is not standardized name for the 'userId' in the 'TokenInfo'-Object.
-     *
-     * @return
-     */
-    protected String[] getPossibleUserIdKeys() {
-
-        // we only use 'uid' at the moment for userids
-        return new String[] {UID_SCOPE};
-
-// return new String[] {"uid", "user", "username", "userid", "user_id", "login", "id", "name"};
+        return this.authenticationExtractor.extractAuthentication(map, clientId);
     }
 
     @Override
@@ -206,6 +103,10 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         @SuppressWarnings("unchecked")
         Map<String, Object> result = map;
         return result;
+    }
+
+    public AuthenticationExtractor getAuthenticationExtractor() {
+        return this.authenticationExtractor;
     }
 
 }

@@ -30,7 +30,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
+import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 import some.test.controller.SecuredResource;
@@ -47,8 +47,8 @@ import some.test.controller.TokeninfoEndpoint;
 @SpringApplicationConfiguration(classes = {SampleApplication.class})
 @WebIntegrationTest(randomPort = false)
 @DirtiesContext
-@ActiveProfiles({ "custom", "defaultAuthentication" })
-public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoResourceServerTokenServicesTest {
+@ActiveProfiles({ "custom", "laxAuthentication" })
+public class LaxTokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoResourceServerTokenServicesTest {
 
     @Autowired
     private TokenInfoResourceServerTokenServices tokenInfoResourceServerTokenServices;
@@ -57,7 +57,6 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
     public void setUp() {
         Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isNotNull();
         Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isExactlyInstanceOf(
-            DefaultAuthenticationExtractor.class);
+            LaxAuthenticationExtractor.class);
     }
-
 }
