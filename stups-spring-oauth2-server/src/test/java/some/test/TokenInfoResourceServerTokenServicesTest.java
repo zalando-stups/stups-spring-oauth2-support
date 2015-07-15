@@ -15,47 +15,41 @@
  */
 package some.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.mockito.Mockito;
-
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.http.AccessTokenRequiredException;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
-
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import org.springframework.web.client.RestOperations;
-
 import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
 import org.zalando.stups.oauth2.spring.client.SecurityContextTokenProvider;
 import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
 import org.zalando.stups.oauth2.spring.client.TokenProviderChain;
 import org.zalando.stups.tokens.AccessTokens;
-
 import some.test.controller.SecuredResource;
 import some.test.controller.TokeninfoEndpoint;
+
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Full Round-Trip test.<br/>
  * Tokeninfo-Endpoint faked by {@link TokeninfoEndpoint}.<br/>
  * SecuredResource found at {@link SecuredResource}.<br/>
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {SampleApplication.class})
@@ -66,38 +60,51 @@ public class TokenInfoResourceServerTokenServicesTest {
     @Value("${local.server.port}")
     private int port;
 
+    private String basePath() {
+        return "http://localhost:" + port;
+    }
+
     @Test
     public void invokeOAuthSecuredService() {
 
         RestOperations restOperations = buildClient("123456789");
 
-        ResponseEntity<String> responseEntity = restOperations.getForEntity("http://localhost:" + port
-                    + "/secured/hello/bello", String.class);
+        ResponseEntity<String> responseEntity = restOperations.getForEntity(basePath()
+                + "/secured/hello/bello", String.class);
 
-        //
-        assertThat(responseEntity.getBody()).isEqualTo("hello bello");
+        assertThat(responseEntity.getBody(), is("hello bello"));
 
+    }
+
+    @Test
+    public void permissionsForAllScopes() {
+        RestOperations restOperations = buildClient("123456789");
+
+        @SuppressWarnings("unchecked")
+        final Set<String> scopes = restOperations.getForEntity(basePath() + "/secured/bye", Set.class).getBody();
+
+        assertThat(scopes, equalTo(TokeninfoEndpoint.ALL_SCOPES));
     }
 
     @Test(expected = AccessTokenRequiredException.class)
     public void invokeOAuthSecuredServiceWithInvalidToken() {
         RestOperations restOperations = buildClient("error");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(basePath() + "/secured/hello/bello", String.class);
     }
 
     @Test(expected = AccessTokenRequiredException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenNoUid() {
         RestOperations restOperations = buildClient("no-uid");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(basePath() + "/secured/hello/bello", String.class);
     }
 
     @Test(expected = AccessTokenRequiredException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenEmptyUid() {
         RestOperations restOperations = buildClient("empty-uid");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(basePath() + "/secured/hello/bello", String.class);
     }
 
     // TODO, maybe we should throw InvalidToken if 'scope' does not exist?
@@ -105,7 +112,7 @@ public class TokenInfoResourceServerTokenServicesTest {
     public void invokeOAuthSecuredServiceWithInvalidTokenNoScope() {
         RestOperations restOperations = buildClient("no-scope");
 
-        restOperations.getForEntity("http://localhost:" + port + "/secured/hello/bello", String.class);
+        restOperations.getForEntity(basePath() + "/secured/hello/bello", String.class);
     }
 
     protected RestOperations buildClient(final String token) {
@@ -120,8 +127,6 @@ public class TokenInfoResourceServerTokenServicesTest {
 
         AutoRefreshTokenProvider first = new AutoRefreshTokenProvider("example", accessTokens);
 
-        // here is the token-provider
-// restTemplate.setAccessTokenProvider(new TestAccessTokenProvider(token));
         restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
                 new TokenProviderChain(new SecurityContextTokenProvider(), first)));
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
