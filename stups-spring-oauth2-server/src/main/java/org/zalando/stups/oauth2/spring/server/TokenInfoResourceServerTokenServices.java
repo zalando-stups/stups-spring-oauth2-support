@@ -135,7 +135,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
      */
     protected Set<String> getScopesWithPermissionTrueFromMap(final Map<String, Object> map) {
         Set<String> scopes = new HashSet<String>();
-        Set<String> permissions = new HashSet<String>();
         try {
             Object scopeValue = map.get("scope");
             if (scopeValue != null) {
@@ -147,21 +146,11 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
                 }
             }
 
-            // important part, check the scope has the permission, indicated by 'true' as value
-            for (String scope : scopes) {
-                Object permission = map.get(scope);
-                if (permission != null) {
-                    if (Boolean.parseBoolean(permission.toString())) {
-                        permissions.add(scope);
-                    }
-                }
-            }
-
         } catch (Exception e) {
             logger.error("Unable to get 'scope' value from map", e);
         }
 
-        return permissions;
+        return scopes;
     }
 
     protected Object getPrincipal(final Map<String, Object> map) {
