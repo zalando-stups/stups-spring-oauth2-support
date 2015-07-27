@@ -15,6 +15,7 @@
         <module>stups-spring-oauth2-client</module>
         <module>stups-spring-oauth2-server</module>
         <module>stups-http-components-oauth2</module>
+        <module>stups-jaxws-oauth2</module>
     </modules>
 
     <properties>
@@ -25,7 +26,7 @@
         <assertj.version>3.0.0</assertj.version>
         <mockito.version>1.10.19</mockito.version>
 
-        <stups-tokens.version>0.7.0</stups-tokens.version>
+        <stups-tokens.version>0.9.0</stups-tokens.version>
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
