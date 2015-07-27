@@ -34,25 +34,25 @@ public class OAuth2TokenInterceptorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void createWithNullAccessTokens() {
-        new Oauth2TokenInterceptor(null, "aServiceId");
+        new OAuth2TokenInterceptor(null, "aServiceId");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createWithNullServiceId() {
         AccessTokens accessTokens = Mockito.mock(AccessTokens.class);
-        new Oauth2TokenInterceptor(accessTokens, null);
+        new OAuth2TokenInterceptor(accessTokens, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createWithEmptyServiceId() {
         AccessTokens accessTokens = Mockito.mock(AccessTokens.class);
-        new Oauth2TokenInterceptor(accessTokens, "");
+        new OAuth2TokenInterceptor(accessTokens, "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createWithWhitespaceServiceId() {
         AccessTokens accessTokens = Mockito.mock(AccessTokens.class);
-        new Oauth2TokenInterceptor(accessTokens, "   ");
+        new OAuth2TokenInterceptor(accessTokens, "   ");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class OAuth2TokenInterceptorTest {
 
         Message message = new MessageImpl();
 
-        Oauth2TokenInterceptor interceptor = new Oauth2TokenInterceptor(accessTokens, serviceId);
+        OAuth2TokenInterceptor interceptor = new OAuth2TokenInterceptor(accessTokens, serviceId);
         interceptor.handleMessage(message);
 
         Assertions.assertThat(message.get(Message.PROTOCOL_HEADERS)).isNotNull();
