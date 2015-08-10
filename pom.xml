@@ -131,8 +131,8 @@
     </profiles>
 
     <scm>
-        <connection>scm:git:https://github.com/zalando-stups/stups-spring-oauth2-support.git</connection>
-        <developerConnection>scm:git:https://github.com/zalando-stups/stups-spring-oauth2-support.git</developerConnection>
+        <connection>scm:git:git@github.com:zalando-stups/stups-spring-oauth2-support.git</connection>
+        <developerConnection>scm:git:git@github.com:zalando-stups/stups-spring-oauth2-support.git</developerConnection>
         <url>https://github.com/zalando-stups/stups-spring-oauth2-support</url>
         <tag>HEAD</tag>
     </scm>
