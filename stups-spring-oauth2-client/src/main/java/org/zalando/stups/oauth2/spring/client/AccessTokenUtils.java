@@ -15,13 +15,14 @@
  */
 package org.zalando.stups.oauth2.spring.client;
 
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
+
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 /**
@@ -43,9 +44,9 @@ public class AccessTokenUtils {
             Object userDetails = ((OAuth2Authentication) authentication).getUserAuthentication().getDetails();
             if (userDetails != null) {
                 try {
-                    Map<String, Object> details = (Map<String, Object>) userDetails;
-                    return Optional.ofNullable((String) details.get(OAuth2AccessToken.ACCESS_TOKEN));
-                } catch (Exception e) {
+                    final Map details = (Map) userDetails;
+                    return Optional.ofNullable((String) details.get(ACCESS_TOKEN));
+                } catch (ClassCastException e) {
 
                     return Optional.empty();
                 }

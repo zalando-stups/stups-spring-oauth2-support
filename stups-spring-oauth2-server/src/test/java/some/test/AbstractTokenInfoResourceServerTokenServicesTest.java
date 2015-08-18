@@ -17,27 +17,27 @@ package some.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import static org.mockito.Matchers.any;
 
-import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.http.AccessTokenRequiredException;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
-import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
+import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.client.token.AccessTokenProvider;
+import org.springframework.security.oauth2.client.token.AccessTokenRequest;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
-import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
-import org.zalando.stups.oauth2.spring.client.SecurityContextTokenProvider;
-import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
-import org.zalando.stups.oauth2.spring.client.TokenProviderChain;
-import org.zalando.stups.tokens.AccessTokens;
+import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 
 /**
  * @author  jbellmann
@@ -60,21 +60,21 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
 
     }
 
-    @Test(expected = AccessTokenRequiredException.class)
+    @Test(expected = HttpClientErrorException.class)
     public void invokeOAuthSecuredServiceWithInvalidToken() {
         RestOperations restOperations = buildClient("error");
 
         restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
-    @Test(expected = AccessTokenRequiredException.class)
+    @Test(expected = HttpClientErrorException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenNoUid() {
         RestOperations restOperations = buildClient("no-uid");
 
         restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
     }
 
-    @Test(expected = AccessTokenRequiredException.class)
+    @Test(expected = HttpClientErrorException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenEmptyUid() {
         RestOperations restOperations = buildClient("empty-uid");
 
@@ -82,7 +82,7 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
     }
 
     // TODO, maybe we should throw InvalidToken if 'scope' does not exist?
-    @Test(expected = InsufficientScopeException.class)
+    @Test(expected = HttpClientErrorException.class)
     public void invokeOAuthSecuredServiceWithInvalidTokenNoScope() {
         RestOperations restOperations = buildClient("no-scope");
 
@@ -90,24 +90,10 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
     }
 
     protected RestOperations buildClient(final String token) {
-
-        AccessTokens accessTokens = Mockito.mock(AccessTokens.class);
-        Mockito.when(accessTokens.get(Mockito.eq("example"))).thenReturn(token);
-
-        BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId("what_here");
-
-        OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-
-        AutoRefreshTokenProvider first = new AutoRefreshTokenProvider("example", accessTokens);
-
-        // here is the token-provider
-// restTemplate.setAccessTokenProvider(new TestAccessTokenProvider(token));
-        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
-                new TokenProviderChain(new SecurityContextTokenProvider(), first)));
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-
-        return restTemplate;
+        final AccessTokenProvider mockTokenProvider = mock(AccessTokenProvider.class);
+        when(mockTokenProvider.obtainAccessToken(any(OAuth2ProtectedResourceDetails.class),
+                any(AccessTokenRequest.class))).thenReturn(new DefaultOAuth2AccessToken(token));
+        return new StupsOAuth2RestTemplate(mockTokenProvider, new HttpComponentsClientHttpRequestFactory());
     }
 
     protected String getBasePath() {

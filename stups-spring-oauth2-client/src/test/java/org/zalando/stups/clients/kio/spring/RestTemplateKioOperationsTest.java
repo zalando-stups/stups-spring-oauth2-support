@@ -15,9 +15,13 @@
  */
 package org.zalando.stups.clients.kio.spring;
 
+import static java.lang.System.currentTimeMillis;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +35,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import static org.zalando.stups.clients.kio.spring.ResourceUtil.resource;
 
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,18 +46,14 @@ import org.mockito.Mockito;
 
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
-
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import org.zalando.stups.clients.kio.Application;
 import org.zalando.stups.clients.kio.ApplicationBase;
 import org.zalando.stups.clients.kio.Version;
-import org.zalando.stups.oauth2.spring.client.AutoRefreshTokenProvider;
-import org.zalando.stups.oauth2.spring.client.SecurityContextTokenProvider;
-import org.zalando.stups.oauth2.spring.client.StupsAccessTokenProvider;
-import org.zalando.stups.oauth2.spring.client.TokenProviderChain;
+import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
+import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
+import org.zalando.stups.tokens.AccessToken;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
@@ -61,40 +63,33 @@ public class RestTemplateKioOperationsTest {
 
     private final String baseUrl = "http://localhost:8080";
 
-    private OAuth2RestTemplate restTemplate;
-
     private MockRestServiceServer mockServer;
 
     private RestTemplateKioOperations client;
 
     private AccessTokens accessTokens;
 
+    private AccessToken accessToken;
+
     @Before
     public void setUp() {
+        accessTokens = mock(AccessTokens.class);
 
-        accessTokens = Mockito.mock(AccessTokens.class);
-
-        BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId("what_here");
-
-        restTemplate = new OAuth2RestTemplate(resource);
-
-        AutoRefreshTokenProvider first = new AutoRefreshTokenProvider("kio", accessTokens);
-
-        // here is the token-provider chain in use
-        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(
-                new TokenProviderChain(new SecurityContextTokenProvider(), first)));
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        final StupsOAuth2RestTemplate restTemplate = new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider(
+                    "kio", accessTokens), new HttpComponentsClientHttpRequestFactory());
 
         client = new RestTemplateKioOperations(restTemplate, baseUrl);
 
         mockServer = MockRestServiceServer.createServer(restTemplate);
+
+        accessToken = new AccessToken("1234567890", "Bearer", 3600,
+                new Date(currentTimeMillis() + TimeUnit.HOURS.toMillis(1)));
     }
 
     //J-
     @Test
     public void getApps() {
-        when(accessTokens.get(Mockito.any(String.class))).thenReturn("1234567890");
+        when(accessTokens.getAccessToken(Mockito.any(String.class))).thenReturn(accessToken);
         mockServer.expect(requestTo(baseUrl + "/apps"))
                     .andExpect(method(GET))
                     // check header
@@ -107,12 +102,12 @@ public class RestTemplateKioOperationsTest {
         assertThat(resultLists.size()).isEqualTo(1);
 
         mockServer.verify();
-        verify(accessTokens, atLeast(1)).get(Mockito.any(String.class));
+        verify(accessTokens).getAccessToken(eq("kio"));
     }
 
     @Test
     public void getApplicationById() {
-        when(accessTokens.get(Mockito.any(String.class))).thenReturn("1234567890");
+        when(accessTokens.getAccessToken(Mockito.any(String.class))).thenReturn(accessToken);
         mockServer.expect(requestTo(baseUrl + "/apps/kio"))
                     .andExpect(method(GET))
                     // check header
@@ -124,12 +119,12 @@ public class RestTemplateKioOperationsTest {
         assertThat(application.getId()).isEqualTo("kio");
 
         mockServer.verify();
-        verify(accessTokens, atLeast(1)).get(Mockito.any(String.class));
+        verify(accessTokens).getAccessToken(eq("kio"));
     }
 
     @Test
     public void getApplicationVersion() {
-        when(accessTokens.get(Mockito.any(String.class))).thenReturn("1234567890");
+        when(accessTokens.getAccessToken(Mockito.any(String.class))).thenReturn(accessToken);
         mockServer.expect(requestTo(baseUrl + "/apps/kio/versions/1"))
                     .andExpect(method(GET))
                     // check header
@@ -143,7 +138,7 @@ public class RestTemplateKioOperationsTest {
 
 
         mockServer.verify();
-        verify(accessTokens, atLeast(1)).get(Mockito.any(String.class));
+        verify(accessTokens).getAccessToken(eq("kio"));
     }
     //J+
 

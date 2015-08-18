@@ -15,20 +15,40 @@
  */
 package org.zalando.stups.oauth2.spring.client;
 
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARER_TYPE;
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.TOKEN_TYPE;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.client.token.AccessTokenRequest;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 
 /**
  * Looks in the {@link SecurityContext} for an access_token.
  *
  * @author  jbellmann
  */
-public class SecurityContextTokenProvider implements TokenProvider {
+public class SecurityContextTokenProvider extends AbstractStupsAccessTokenProvider {
 
     @Override
-    public Optional<String> getToken() {
-        return AccessTokenUtils.getAccessTokenFromSecurityContext();
+    public OAuth2AccessToken obtainAccessToken(final OAuth2ProtectedResourceDetails details,
+            final AccessTokenRequest parameters) {
+        final Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        final Map<String, String> tokenParams = new HashMap<>();
+        tokenParams.put(ACCESS_TOKEN, accessToken.orElseThrow(SecurityContextTokenProvider::tokenUnavailable));
+        tokenParams.put(TOKEN_TYPE, BEARER_TYPE);
+        return DefaultOAuth2AccessToken.valueOf(tokenParams);
+    }
+
+    private static OAuth2Exception tokenUnavailable() {
+        return new OAuth2Exception("No access token available in current security context");
     }
 
 }

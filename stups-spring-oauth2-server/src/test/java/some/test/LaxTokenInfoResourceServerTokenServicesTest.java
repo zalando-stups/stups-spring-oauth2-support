@@ -15,7 +15,7 @@
  */
 package some.test;
 
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.StrictAssertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,8 +58,8 @@ public class LaxTokenInfoResourceServerTokenServicesTest extends AbstractTokenIn
 
     @Before
     public void setUp() {
-        Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isNotNull();
-        Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isExactlyInstanceOf(
+        assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isNotNull();
+        assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isExactlyInstanceOf(
             LaxAuthenticationExtractor.class);
     }
 
