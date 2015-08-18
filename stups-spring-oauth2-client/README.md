@@ -1,62 +1,54 @@
-### How to use this library
+## How to use this library
 
-Maybe it is enough to show you some code. Here is a snippet from the [fullstop-Application](https://github.com/zalando-stups/fullstop) where we use client-implementations to get some information from [kio](https://github.com/zalando-stups/kio) and [pierone](https://github.com/zalando-stups/pierone).
+This library provides a subclass of Spring's RestTemplate, which is capable of adding the OAuth2 Authorization bearer
+header to eahc request. The StupsOAuth2RestTemplate requires an AccessTokenProvider to obtain the current token.
+Here is an example how to wire everything together:
 
+```java
 
-```
-...
+    @Autowired
+    private AccessTokens accessTokens;
 
     @Bean
-    public KioOperations kioOperations() {
+    public KioOperations kioOperations(@Value("${kio.url}") String kioBaseUrl) {
         return new RestTemplateKioOperations(buildOAuth2RestTemplate("kio"), kioBaseUrl);
     }
 
     @Bean
-    public PieroneOperations pieroneOperations() {
+    public PieroneOperations pieroneOperations(@Value("${pierone.url}") String pieroneBaseUrl) {
         return new RestTemplatePieroneOperations(buildOAuth2RestTemplate("pierone"), pieroneBaseUrl);
     }
 
-    private RestOperations buildOAuth2RestTemplate(String tokenName) {
-        final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        // we call these services from 'fullstop', so we put our application name here
-        resource.setClientId("fullstop");
-
-        // because we want to do OAuth2, we use the OAuth2RestTemplate implementation
-        // provided with the 'spring-security-oauth2' artifact
-        final OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(resource);
-
-        // to get an 'AccessToken' into the headers of every request we had to implement 'AccessTokenProvider'
-        // what we called 'StupsAccessTokenProvider', to be flexible we implemented it as a chain, so you are able
-        // to chain them if you need, read more about that below
-        restTemplate.setAccessTokenProvider(new StupsAccessTokenProvider(new AutoRefreshTokenProvider(tokenName, accessTokens)));
-
-        // you are free to choose whatever 'RequestFactory' you want to use
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-
-        return restTemplate;
-    }
+    private RestOperations buildOAuth2RestTemplate(final String tokenName) {
+        return new StupsOAuth2RestTemplate(new StupsTokensAccessTokenProvider(tokenName, accessTokens));
+    } 
+     
 ```
 
-[full code of ClientConfig](https://github.com/zalando-stups/fullstop/blob/master/fullstop/src/main/java/org/zalando/stups/fullstop/config/ClientConfig.java)
 
-#### Some more words about 'StupsAccessTokenProvider'
+## AccessTokenProviders
 
-As written above it's our implementation of 'AccessTokenProvider' what is used internally by OAuth2RestTemplate to get an
-access-token what is then placed in a request-header.
+Let's have a look at the AccessTokenProviders
 
-To make the implementation flexible we defined our own interface [TokenProvider](https://github.com/zalando-stups/stups-spring-oauth2-support/blob/master/stups-spring-oauth2-client/src/main/java/org/zalando/stups/oauth2/spring/client/TokenProvider.java) that is very simple. Currently we have two implementations for 'TokenProvider':
 
-##### AutoRefreshTokenProvider
+### StupsTokensAccessTokenProvider
 
-This [implementation](https://github.com/zalando-stups/stups-spring-oauth2-support/blob/master/stups-spring-oauth2-client/src/main/java/org/zalando/stups/oauth2/spring/client/AutoRefreshTokenProvider.java) is useful when your application/(micro)service is doing some background-tasks, jobs or something like that where
-no 'real' user initiated an action on your application. AutoRefreshTokenProvider uses the whole [mint](http://stups.readthedocs.org/en/latest/components/mint.html) and [berry](http://stups.readthedocs.org/en/latest/components/berry.html) machinery with rotating client-credentials mounted from S3 into your Docker-Container.
+This is a wrapper for the [Stups' tokens library](https://github.com/zalando-stups/tokens), which is able to obtain
+a list of access tokens, using given credentials, and each having different scopes.
 
-To get this easily to work in a Spring-Boot application you should have a look at [spring-boot-zalando-stups-tokens](https://github.com/zalando-stups/spring-boot-zalando-stups-tokens).
+It is useful when your application/(micro)service needs to access OAuth2-protected resources with its own service user, 
+e.g. like in background-tasks, jobs, etc.
 
-##### SecurityContextTokenProvider
+To get this easily to work in a Spring-Boot application you should have a look at
+[spring-boot-zalando-stups-tokens](https://github.com/zalando-stups/spring-boot-zalando-stups-tokens).
 
-This [implementation](https://github.com/zalando-stups/stups-spring-oauth2-support/blob/master/stups-spring-oauth2-client/src/main/java/org/zalando/stups/oauth2/spring/client/SecurityContextTokenProvider.java) is useful when your application/(micro)service is somewhere in between of an request-flow initiated by an
-'real' user or another service that are already authenticated and authorized when it (the request) goes through your application (you have security in place, right?). Then we take the access-token from Springs SecurityContext to make the next server-hop when requesting another service via http.
+### SecurityContextTokenProvider
+
+This implementation is useful when your application/(micro)service is somewhere in between of a request-flow initiated
+by a 'real' user or another service that are already authenticated and authorized when it (the request) goes through
+your application (you have security in place, right?).
+
+Then we take the access-token from Springs SecurityContext (from the incoming request) to make succeeding requests. 
 
 #### How to implement clients with Springs-RestTemplate?
 
