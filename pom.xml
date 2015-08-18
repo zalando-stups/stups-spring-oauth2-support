@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.zalando.stups</groupId>
     <artifactId>stups-spring-oauth2-support</artifactId>
-    <version>0.9.12-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -25,12 +25,15 @@
         <guava.version>18.0</guava.version>
         <assertj.version>3.1.0</assertj.version>
         <mockito.version>1.10.19</mockito.version>
+        <json-path.version>2.0.0</json-path.version>
 
         <stups-tokens.version>0.9.0</stups-tokens.version>
 
         <coveralls.dryRun>true</coveralls.dryRun>
         <main.basedir>${basedir}</main.basedir>
         <argLine />
+        <spring-boot-zalando-stups-tokens.version>0.9.0</spring-boot-zalando-stups-tokens.version>
+        <kio-client-java-spring.version>0.9.4</kio-client-java-spring.version>
     </properties>
 
     <dependencyManagement>
@@ -63,6 +66,21 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${json-path.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>spring-boot-zalando-stups-tokens</artifactId>
+                <version>${spring-boot-zalando-stups-tokens.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando.stups</groupId>
+                <artifactId>kio-client-java-spring</artifactId>
+                <version>${kio-client-java-spring.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
