@@ -44,6 +44,8 @@ import org.springframework.web.client.RestTemplate;
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
+    private static final String ACCESS_TOKEN_PARAM = "?access_token=";
+
     private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -57,13 +59,21 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     private final AuthenticationExtractor authenticationExtractor;
 
     /**
-     * Specify 'tokenInfoEndpointUrl' and 'clientId' to be used by this component.
+     * Specify 'tokenInfoEndpointUrl' to be used by this component.
      *
      * @param  tokenInfoEndpointUrl
-     * @param  clientId
      */
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
+    }
+
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
-        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor(), new RestTemplate());
+        this(tokenInfoEndpointUrl, clientId, new LaxAuthenticationExtractor(), new RestTemplate());
+    }
+
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
+            final AuthenticationExtractor authenticationExtractor) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, new RestTemplate());
     }
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
@@ -85,11 +95,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         this.restTemplate = restTemplate;
 
         this.clientId = clientId;
-    }
-
-    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
-            final AuthenticationExtractor authenticationExtractor) {
-        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, new RestTemplate());
     }
 
     @Override
@@ -126,7 +131,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     protected static String buildTokenInfoEndpointUrlWithParameter(final String tokenInfoEndpointUrl,
             final String accessToken) {
         StringBuilder sb = new StringBuilder();
-        sb.append(tokenInfoEndpointUrl).append("?access_token=").append(accessToken);
+        sb.append(tokenInfoEndpointUrl).append(ACCESS_TOKEN_PARAM).append(accessToken);
         return sb.toString();
     }
 

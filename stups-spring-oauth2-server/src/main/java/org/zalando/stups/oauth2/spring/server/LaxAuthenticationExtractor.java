@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Will become the new 'default'.
+ *
  * @author  jbellmann
  */
 public class LaxAuthenticationExtractor extends AbstractAuthenticationExtractor {

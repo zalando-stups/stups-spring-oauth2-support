@@ -29,27 +29,27 @@ public class TokenInfoResourceServerTokenServicesTest {
 
     @Test
     public void initialize() {
-        new TokenInfoResourceServerTokenServices(TOKENINFO_URL, new DefaultAuthenticationExtractor());
+        new TokenInfoResourceServerTokenServices(TOKENINFO_URL);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithInvalidUrl() {
-        new TokenInfoResourceServerTokenServices(INVALID_TOKENINFO_URL, new DefaultAuthenticationExtractor());
+        new TokenInfoResourceServerTokenServices(INVALID_TOKENINFO_URL);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullUrl() {
-        new TokenInfoResourceServerTokenServices(null, new DefaultAuthenticationExtractor());
+        new TokenInfoResourceServerTokenServices(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithEmptyUrl() {
-        new TokenInfoResourceServerTokenServices("", new DefaultAuthenticationExtractor());
+        new TokenInfoResourceServerTokenServices("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithWhitespaceUrl() {
-        new TokenInfoResourceServerTokenServices("  ", new DefaultAuthenticationExtractor());
+        new TokenInfoResourceServerTokenServices("  ");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -60,8 +60,7 @@ public class TokenInfoResourceServerTokenServicesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullRestTemplate() {
-        new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new DefaultAuthenticationExtractor(),
-            null);
+        new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new LaxAuthenticationExtractor(), null);
     }
 
     @Test
