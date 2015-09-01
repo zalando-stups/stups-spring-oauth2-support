@@ -69,15 +69,14 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here",
-                new DefaultAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new DefaultAuthenticationExtractor());
     }
 
     @Profile("laxAuthentication")
     @Bean
     public ResourceServerTokenServices laxResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here", new LaxAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new LaxAuthenticationExtractor());
     }
 
 }

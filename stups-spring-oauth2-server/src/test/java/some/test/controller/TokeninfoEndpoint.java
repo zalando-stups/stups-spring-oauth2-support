@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Controller;
 
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Lists;
@@ -41,36 +41,35 @@ public class TokeninfoEndpoint {
     private final Logger logger = LoggerFactory.getLogger(TokeninfoEndpoint.class);
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/tokeninfo")
+    @RequestMapping(value = "/tokeninfo", params = {"access_token"})
     @ResponseBody
-    public Map<String, Object> fakeTheResponse(@RequestHeader("Authorization") final String authorizationHeader) {
+    public Map<String, Object> fakeTheResponse(@RequestParam("access_token") final String accessTokenParameter) {
         logger.warn("------- FAKE_TOKENINFO -------");
-        logger.warn("Authorization-header : {}", authorizationHeader);
+        logger.warn("access_token : {}", accessTokenParameter);
 
-        String accessTokenFromHeader = authorizationHeader.replace("Bearer ", "");
         Map<String, Object> result = null;
-        if (authorizationHeader.contains("error")) {
+        if (accessTokenParameter.contains("error")) {
             result = buildErrorResult();
-        } else if (authorizationHeader.contains("no-uid")) {
-            result = buildAccessToken(accessTokenFromHeader);
+        } else if (accessTokenParameter.contains("no-uid")) {
+            result = buildAccessToken(accessTokenParameter);
             result.remove("uid");
             ((List<String>) result.get("scope")).remove("uid");
-        } else if (authorizationHeader.contains("empty-uid")) {
-            result = buildAccessToken(accessTokenFromHeader);
+        } else if (accessTokenParameter.contains("empty-uid")) {
+            result = buildAccessToken(accessTokenParameter);
             result.put("uid", "");
-        } else if (authorizationHeader.contains("no-scope")) {
-            result = buildAccessToken(accessTokenFromHeader);
+        } else if (accessTokenParameter.contains("no-scope")) {
+            result = buildAccessToken(accessTokenParameter);
             result.remove("scope");
-        } else if (authorizationHeader.contains("lax")) {
-            result = buildAccessToken(accessTokenFromHeader);
+        } else if (accessTokenParameter.contains("lax")) {
+            result = buildAccessToken(accessTokenParameter);
             result.remove("testscope");
             result.remove("simpleScope");
-        } else if (authorizationHeader.contains("lax-with-false")) {
-            result = buildAccessToken(accessTokenFromHeader);
+        } else if (accessTokenParameter.contains("lax-with-false")) {
+            result = buildAccessToken(accessTokenParameter);
             result.put("testscope", Boolean.FALSE);
             result.put("simpleScope", Boolean.FALSE);
         } else {
-            result = buildAccessToken(accessTokenFromHeader);
+            result = buildAccessToken(accessTokenParameter);
         }
 
         return result;
@@ -83,10 +82,10 @@ public class TokeninfoEndpoint {
         return result;
     }
 
-    protected Map<String, Object> buildAccessToken(final String accessTokenFromHeader) {
+    protected Map<String, Object> buildAccessToken(final String accessTokenParameter) {
         Map<String, Object> result = Maps.newHashMap();
         result.put("uid", "klaus.tester");
-        result.put("access_token", accessTokenFromHeader);
+        result.put("access_token", accessTokenParameter);
         result.put("token_type", "Bearer");
         result.put("expires_in", 5000);
         result.put("scope", Lists.newArrayList("uid", "simpleScope", "extrascope", "testscope"));
