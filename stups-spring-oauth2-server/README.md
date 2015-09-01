@@ -6,7 +6,7 @@ This library provides an implementation of ResourceServerTokenServices.
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here");
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri);
     }
 ```
 
@@ -39,7 +39,7 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here");
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri);
     }
 
 }
