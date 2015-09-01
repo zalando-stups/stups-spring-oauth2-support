@@ -69,7 +69,7 @@ public class OAuth2TokenInterceptorTest {
         Assertions.assertThat(message.get(Message.PROTOCOL_HEADERS)).isNotNull();
 
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
-        Assertions.assertThat(headers).containsValue(Collections.singletonList("Bearer: 0123456789"));
+        Assertions.assertThat(headers).containsValue(Collections.singletonList("Bearer 0123456789"));
 
         Mockito.verify(accessTokens, Mockito.atLeast(1)).get(Mockito.eq(serviceId));
 

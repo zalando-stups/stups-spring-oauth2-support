@@ -36,7 +36,7 @@ import org.zalando.stups.tokens.AccessTokens;
 public class OAuth2TokenInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
-    private static final String BEARER = "Bearer: ";
+    private static final String BEARER = "Bearer ";
     private final AccessTokens accessTokens;
     private final String serviceId;
 
