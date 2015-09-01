@@ -15,20 +15,24 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+
+import org.springframework.util.Assert;
+
+import org.springframework.web.client.RestTemplate;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the hood it takes the 'access_token' from the
@@ -40,36 +44,57 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
+    private static final String ACCESS_TOKEN_PARAM = "?access_token=";
+
+    private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected String tokenInfoEndpointUrl;
+    private final String tokenInfoEndpointUrl;
 
-    protected String clientId;
+    private final String clientId;
 
-    private OAuth2RestOperations restTemplate;
+    private final RestTemplate restTemplate;
 
     private final AuthenticationExtractor authenticationExtractor;
 
     /**
-     * Specify 'tokenInfoEndpointUrl' and 'clientId' to be used by this component.
+     * Specify 'tokenInfoEndpointUrl' to be used by this component.
      *
      * @param  tokenInfoEndpointUrl
-     * @param  clientId
      */
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
+    }
+
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
-        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor());
+        this(tokenInfoEndpointUrl, clientId, new LaxAuthenticationExtractor(), new RestTemplate());
+    }
+
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
+            final AuthenticationExtractor authenticationExtractor) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, new RestTemplate());
     }
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
-            final AuthenticationExtractor authenticationExtractor) {
-        this.tokenInfoEndpointUrl = tokenInfoEndpointUrl;
-        this.clientId = clientId;
-        this.authenticationExtractor = authenticationExtractor;
+            final AuthenticationExtractor authenticationExtractor, final RestTemplate restTemplate) {
 
-        //
-        BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId(clientId);
-        this.restTemplate = new OAuth2RestTemplate(resource);
+        Assert.hasText(tokenInfoEndpointUrl, "TokenInfoEndpointUrl should never be null or empty");
+        try {
+            new URL(tokenInfoEndpointUrl);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("TokenInfoEndpointUrl is not an URL", e);
+        }
+
+        Assert.hasText(clientId, "ClientId should never be null or empty");
+        Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
+        Assert.notNull(restTemplate, "RestTemplate should not be null");
+
+        this.tokenInfoEndpointUrl = tokenInfoEndpointUrl;
+        this.authenticationExtractor = authenticationExtractor;
+        this.restTemplate = restTemplate;
+
+        this.clientId = clientId;
     }
 
     @Override
@@ -94,15 +119,20 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     protected Map<String, Object> getMap(final String tokenInfoEndpointUrl, final String accessToken) {
         logger.info("Getting token info from: " + tokenInfoEndpointUrl);
 
-        OAuth2RestOperations restTemplate = this.restTemplate;
-// restTemplate.getOAuth2ClientContext().setAccessToken(new DefaultOAuth2AccessToken(accessToken));
-        restTemplate.getOAuth2ClientContext().setAccessToken(new UppercaseOAuth2AccessToken(accessToken));
-
+        String urlWithParameter = buildTokenInfoEndpointUrlWithParameter(tokenInfoEndpointUrl, accessToken);
         @SuppressWarnings("rawtypes")
-        Map map = restTemplate.getForEntity(tokenInfoEndpointUrl, Map.class).getBody();
+        Map map = restTemplate.getForEntity(urlWithParameter, Map.class).getBody();
+
         @SuppressWarnings("unchecked")
         Map<String, Object> result = map;
         return result;
+    }
+
+    protected static String buildTokenInfoEndpointUrlWithParameter(final String tokenInfoEndpointUrl,
+            final String accessToken) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(tokenInfoEndpointUrl).append(ACCESS_TOKEN_PARAM).append(accessToken);
+        return sb.toString();
     }
 
     public AuthenticationExtractor getAuthenticationExtractor() {

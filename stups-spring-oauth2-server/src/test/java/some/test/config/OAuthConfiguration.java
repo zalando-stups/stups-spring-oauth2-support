@@ -29,7 +29,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 
-import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
@@ -69,15 +68,20 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here",
-                new DefaultAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new LaxAuthenticationExtractor());
     }
 
+    /**
+     * @return
+     *
+     * @deprecated  lax will become the new default
+     */
+    @Deprecated
     @Profile("laxAuthentication")
     @Bean
     public ResourceServerTokenServices laxResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, "what_here", new LaxAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new LaxAuthenticationExtractor());
     }
 
 }
