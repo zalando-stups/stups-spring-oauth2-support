@@ -67,7 +67,7 @@ public class StupsTokensAccessTokenProvider extends AbstractStupsAccessTokenProv
 
         final Map<String, String> tokenParams = new HashMap<>();
         tokenParams.put(ACCESS_TOKEN, accessToken.getToken());
-        tokenParams.put(TOKEN_TYPE, capitalize(accessToken.getType()));
+        tokenParams.put(TOKEN_TYPE, OAuth2AccessToken.BEARER_TYPE);
         tokenParams.put(EXPIRES_IN, secondsTo(accessToken.getValidUntil()));
         return DefaultOAuth2AccessToken.valueOf(tokenParams);
     }
