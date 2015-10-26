@@ -19,12 +19,10 @@ import static java.lang.System.currentTimeMillis;
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.EXPIRES_IN;
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.TOKEN_TYPE;
-import static org.springframework.util.StringUtils.capitalize;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
