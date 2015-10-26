@@ -17,15 +17,16 @@ package org.zalando.stups.oauth2.spring.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.assertj.core.util.DateUtil.tomorrow;
-import static org.assertj.core.util.DateUtil.yesterday;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -103,4 +104,18 @@ public class StupsTokensAccessTokenProviderTest {
             verify(mockAccessTokens).getAccessToken(eq(TOKEN_ID));
         }
     }
+    
+    
+    // copy pasted from assertj-3.1.0
+    public static Date tomorrow() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        return cal.getTime();
+      }
+    
+    public static Date yesterday() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        return cal.getTime();
+      }
 }

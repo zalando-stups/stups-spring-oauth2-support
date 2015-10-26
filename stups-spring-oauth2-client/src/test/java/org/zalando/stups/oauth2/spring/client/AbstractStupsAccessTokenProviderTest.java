@@ -15,13 +15,13 @@
  */
 package org.zalando.stups.oauth2.spring.client;
 
-import static org.assertj.core.api.StrictAssertions.assertThat;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.resource.UserApprovalRequiredException;

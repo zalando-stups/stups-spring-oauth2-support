@@ -16,19 +16,14 @@
 package org.zalando.stups.oauth2.spring.client;
 
 import static java.util.Collections.singletonMap;
-
-import static org.assertj.core.api.StrictAssertions.assertThat;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
-
 import static org.zalando.stups.oauth2.spring.client.AccessTokenUtils.getAccessTokenFromSecurityContext;
 
 import org.junit.After;
 import org.junit.Test;
-
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

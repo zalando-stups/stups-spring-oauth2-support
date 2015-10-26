@@ -17,7 +17,7 @@ package org.zalando.stups.oauth2.spring.client;
 
 import static java.util.Collections.singletonMap;
 
-import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
