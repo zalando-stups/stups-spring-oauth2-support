@@ -21,7 +21,6 @@ import static org.springframework.security.oauth2.common.OAuth2AccessToken.TOKEN
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
@@ -29,6 +28,8 @@ import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+
+import com.google.common.base.Optional;
 
 /**
  * Looks in the {@link SecurityContext} for an access_token.
@@ -49,9 +50,5 @@ public class SecurityContextTokenProvider extends AbstractStupsAccessTokenProvid
         tokenParams.put(TOKEN_TYPE, BEARER_TYPE);
         return DefaultOAuth2AccessToken.valueOf(tokenParams);
     }
-//
-//    private static OAuth2Exception tokenUnavailable() {
-//        return new OAuth2Exception("No access token available in current security context");
-//    }
 
 }

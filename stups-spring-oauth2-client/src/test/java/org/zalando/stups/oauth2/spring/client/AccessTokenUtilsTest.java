@@ -45,14 +45,14 @@ public class AccessTokenUtilsTest {
     @Test
     public void testNonOAuth2Authentication() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("foo", "bar"));
-        assertThat(getAccessTokenFromSecurityContext()).isEmpty();
+        assertThat(getAccessTokenFromSecurityContext().get()).isNull();
     }
 
     @Test
     public void testMissingUserDetails() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(mock(OAuth2Request.class),
                 mock(Authentication.class)));
-        assertThat(getAccessTokenFromSecurityContext()).isEmpty();
+        assertThat(getAccessTokenFromSecurityContext().get()).isNull();
     }
 
     @Test
@@ -62,7 +62,7 @@ public class AccessTokenUtilsTest {
 
         SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(mock(OAuth2Request.class),
                 userAuthentication));
-        assertThat(getAccessTokenFromSecurityContext()).isEmpty();
+        assertThat(getAccessTokenFromSecurityContext().get()).isNull();
     }
 
     @Test
@@ -72,6 +72,6 @@ public class AccessTokenUtilsTest {
 
         SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(mock(OAuth2Request.class),
                 userAuthentication));
-        assertThat(getAccessTokenFromSecurityContext()).contains("1234567890");
+        assertThat(getAccessTokenFromSecurityContext().get()).contains("1234567890");
     }
 }

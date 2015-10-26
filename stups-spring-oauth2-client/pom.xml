@@ -18,6 +18,10 @@
             <groupId>org.zalando.stups</groupId>
             <artifactId>tokens</artifactId>
         </dependency>
+        <dependency>
+        	<groupId>com.google.guava</groupId>
+        	<artifactId>guava</artifactId>
+        </dependency>
 
         <!-- TESTING -->
         <dependency>
