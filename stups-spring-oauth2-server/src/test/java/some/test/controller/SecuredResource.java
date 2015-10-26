@@ -15,16 +15,14 @@
  */
 package some.test.controller;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import org.zalando.stups.oauth2.spring.client.AccessTokenUtils;
+
+import com.google.common.base.Optional;
 
 /**
  * The Resource we secured with OAuth2.
