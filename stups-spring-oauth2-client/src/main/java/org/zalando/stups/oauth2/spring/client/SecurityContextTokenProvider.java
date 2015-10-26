@@ -41,14 +41,17 @@ public class SecurityContextTokenProvider extends AbstractStupsAccessTokenProvid
     public OAuth2AccessToken obtainAccessToken(final OAuth2ProtectedResourceDetails details,
             final AccessTokenRequest parameters) {
         final Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        if(!accessToken.isPresent()){
+        	throw new OAuth2Exception("No access token available in current security context");
+        }
         final Map<String, String> tokenParams = new HashMap<>();
-        tokenParams.put(ACCESS_TOKEN, accessToken.orElseThrow(SecurityContextTokenProvider::tokenUnavailable));
+        tokenParams.put(ACCESS_TOKEN, accessToken.get());
         tokenParams.put(TOKEN_TYPE, BEARER_TYPE);
         return DefaultOAuth2AccessToken.valueOf(tokenParams);
     }
-
-    private static OAuth2Exception tokenUnavailable() {
-        return new OAuth2Exception("No access token available in current security context");
-    }
+//
+//    private static OAuth2Exception tokenUnavailable() {
+//        return new OAuth2Exception("No access token available in current security context");
+//    }
 
 }
