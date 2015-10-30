@@ -8,7 +8,8 @@
 	<artifactId>stups-jaxws-oauth2</artifactId>
 
 	<properties>
-		<cxf.version>2.7.16</cxf.version>
+		<!-- versions higher produce ASM-Exceptions -->
+		<cxf.version>2.7.10</cxf.version>
 	</properties>
 
 	<dependencies>
