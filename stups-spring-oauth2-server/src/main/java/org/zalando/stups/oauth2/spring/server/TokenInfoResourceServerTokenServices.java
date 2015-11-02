@@ -17,21 +17,21 @@ package org.zalando.stups.oauth2.spring.server;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-
 import org.springframework.util.Assert;
-
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -70,12 +70,12 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	}
 
 	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
-		this(tokenInfoEndpointUrl, clientId, new LaxAuthenticationExtractor(), new RestTemplate());
+		this(tokenInfoEndpointUrl, clientId, new LaxAuthenticationExtractor(), buildRestTemplate());
 	}
 
 	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
 			final AuthenticationExtractor authenticationExtractor) {
-		this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, new RestTemplate());
+		this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, buildRestTemplate());
 	}
 
 	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
@@ -114,7 +114,12 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 		if (map.containsKey("error")) {
 			logger.debug("userinfo returned error: " + map.get("error"));
-			throw new InvalidTokenException(accessToken);
+
+			String description = (String) map.get("error_description");
+			if (!StringUtils.hasText(description)) {
+				description = (String) map.get("error");
+			}
+			throw new InvalidTokenException(description);
 		}
 
 		return this.authenticationExtractor.extractAuthentication(map, clientId);
@@ -146,6 +151,30 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 	public AuthenticationExtractor getAuthenticationExtractor() {
 		return this.authenticationExtractor;
+	}
+
+	public static RestTemplate buildRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+		return restTemplate;
+	}
+
+	/**
+	 * We get an 400 for invalid access-token.
+	 * 
+	 * @author jbellmann
+	 *
+	 */
+	static class CustomResponseErrorHandler extends DefaultResponseErrorHandler {
+
+		@Override
+		protected boolean hasError(HttpStatus statusCode) {
+			// we get an 400 for invalid access-token
+			if (HttpStatus.BAD_REQUEST.equals(statusCode)) {
+				return false;
+			}
+			return super.hasError(statusCode);
+		}
 	}
 
 	static class TokenInfoEndpointException extends AuthenticationException {
