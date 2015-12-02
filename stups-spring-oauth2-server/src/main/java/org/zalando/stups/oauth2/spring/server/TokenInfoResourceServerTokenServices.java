@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
+import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
@@ -104,11 +107,12 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 			throws AuthenticationException, InvalidTokenException {
 
 		Map<String, Object> map = null;
+
 		try {
-
 			map = getMap(tokenInfoEndpointUrl, accessToken);
+		} catch (OAuth2Exception e) {
+			throw e;
 		} catch (Exception e) {
-
 			throw new TokenInfoEndpointException("Retrieving information to 'accessToken' failed.", e);
 		}
 
@@ -144,9 +148,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 	protected static String buildTokenInfoEndpointUrlWithParameter(final String tokenInfoEndpointUrl,
 			final String accessToken) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(tokenInfoEndpointUrl).append(ACCESS_TOKEN_PARAM).append(accessToken);
-		return sb.toString();
+		return tokenInfoEndpointUrl + ACCESS_TOKEN_PARAM + accessToken;
 	}
 
 	public AuthenticationExtractor getAuthenticationExtractor() {
@@ -155,26 +157,10 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 	public static RestTemplate buildRestTemplate() {
 		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-		restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+		final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
+		resource.setClientId("unused");
+		restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
 		return restTemplate;
-	}
-
-	/**
-	 * We get an 400 for invalid access-token.
-	 * 
-	 * @author jbellmann
-	 *
-	 */
-	static class CustomResponseErrorHandler extends DefaultResponseErrorHandler {
-
-		@Override
-		protected boolean hasError(HttpStatus statusCode) {
-			// we get an 400 for invalid access-token
-			if (HttpStatus.BAD_REQUEST.equals(statusCode)) {
-				return false;
-			}
-			return super.hasError(statusCode);
-		}
 	}
 
 	static class TokenInfoEndpointException extends AuthenticationException {
