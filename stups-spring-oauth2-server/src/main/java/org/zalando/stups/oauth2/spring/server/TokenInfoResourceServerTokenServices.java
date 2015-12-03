@@ -163,7 +163,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 		return restTemplate;
 	}
 
-	static class TokenInfoEndpointException extends AuthenticationException {
+	static class TokenInfoEndpointException extends OAuth2Exception {
 
 		private static final long serialVersionUID = 1L;
 
