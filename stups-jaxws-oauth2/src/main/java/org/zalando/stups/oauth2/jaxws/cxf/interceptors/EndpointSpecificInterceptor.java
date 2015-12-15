@@ -29,8 +29,8 @@ public class EndpointSpecificInterceptor extends OAuth2TokenInterceptor {
     private EndpointSpecificInterceptor(final Builder builder) {
         super(builder.accessTokens, builder.serviceId); // Checks performed in superclass.
 
-        super.check(builder.endpointNames != null, "Set of endpoint names should not be null.");
-        super.check(!builder.endpointNames.isEmpty(), "Set of endpoint names should not be empty.");
+        check(builder.endpointNames != null, "Set of endpoint names should not be null.");
+        check(!builder.endpointNames.isEmpty(), "Set of endpoint names should not be empty.");
 
         for (final String name : builder.endpointNames) {
             check(isOk(name), "Endpoint name must be non-null and non-empty.");
