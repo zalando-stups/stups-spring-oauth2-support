@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.oauth2.httpcomponents;
 
-import java.io.IOException;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -24,8 +22,10 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.zalando.stups.tokens.AccessTokens;
 
+import java.io.IOException;
+
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
 
@@ -37,7 +37,7 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     public AccessTokensRequestInterceptor(final String tokenId, final AccessTokens accessTokens) {
         Args.check(tokenId != null, "'tokenId' should never be null");
         Args.check(accessTokens != null, "'accessTokens' should never be null");
-        Args.check(!tokenId.trim().isEmpty(), "'tokenId' should never be empty");
+        Args.check(tokenId != null && !tokenId.trim().isEmpty(), "'tokenId' should never be empty");
         this.tokenId = tokenId;
         this.accessTokens = accessTokens;
     }
@@ -45,10 +45,8 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append(BEARER);
-            sb.append(accessTokens.get(tokenId));
-            request.setHeader(AUTHORIZATION_HEADER_NAME, sb.toString());
+            // Using String concatenation because it's short, out of a loop and the compiler will turn it to StringBuilder
+            request.setHeader(AUTHORIZATION_HEADER_NAME, BEARER + this.accessTokens.get(this.tokenId));
         } catch (Exception e) {
             throw new HttpException("Unable to place header 'access_token' into request.", e);
         }
