@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2015 Zalando SE (http://tech.zalando.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     public AccessTokensRequestInterceptor(final String tokenId, final AccessTokens accessTokens) {
         Args.check(tokenId != null, "'tokenId' should never be null");
         Args.check(accessTokens != null, "'accessTokens' should never be null");
-        Args.check(tokenId != null && !tokenId.trim().isEmpty(), "'tokenId' should never be empty");
+        Args.check(!tokenId.trim().isEmpty(), "'tokenId' should never be empty");
         this.tokenId = tokenId;
         this.accessTokens = accessTokens;
     }
@@ -45,11 +45,20 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
         try {
-            // Using String concatenation because it's short, out of a loop and the compiler will turn it to StringBuilder
-            request.setHeader(AUTHORIZATION_HEADER_NAME, BEARER + this.accessTokens.get(this.tokenId));
+            request.setHeader(AUTHORIZATION_HEADER_NAME, getBearerToken());
         } catch (Exception e) {
             throw new HttpException("Unable to place header 'access_token' into request.", e);
         }
+    }
+
+    /**
+     * Return the Bearer token header.
+     *
+     * @return The Bearer access_token
+     */
+    private String getBearerToken() {
+        // Using String concatenation because it's short and out of a loop. The compiler will turn it to StringBuilder
+        return BEARER + this.accessTokens.get(this.tokenId);
     }
 
 }
