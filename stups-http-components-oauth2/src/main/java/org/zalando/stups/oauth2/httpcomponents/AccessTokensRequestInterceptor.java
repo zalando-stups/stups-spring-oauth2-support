@@ -15,8 +15,6 @@
  */
 package org.zalando.stups.oauth2.httpcomponents;
 
-import java.io.IOException;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -24,8 +22,10 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.zalando.stups.tokens.AccessTokens;
 
+import java.io.IOException;
+
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
 
@@ -45,13 +45,20 @@ public class AccessTokensRequestInterceptor implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append(BEARER);
-            sb.append(accessTokens.get(tokenId));
-            request.setHeader(AUTHORIZATION_HEADER_NAME, sb.toString());
+            request.setHeader(AUTHORIZATION_HEADER_NAME, getBearerToken());
         } catch (Exception e) {
             throw new HttpException("Unable to place header 'access_token' into request.", e);
         }
+    }
+
+    /**
+     * Return the Bearer token header.
+     *
+     * @return The Bearer access_token
+     */
+    private String getBearerToken() {
+        // Using String concatenation because it's short and out of a loop. The compiler will turn it to StringBuilder
+        return BEARER + this.accessTokens.get(this.tokenId);
     }
 
 }
