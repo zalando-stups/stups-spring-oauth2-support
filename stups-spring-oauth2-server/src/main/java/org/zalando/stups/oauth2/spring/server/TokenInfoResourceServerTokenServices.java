@@ -15,13 +15,8 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
@@ -34,8 +29,11 @@ import org.springframework.security.oauth2.provider.authentication.BearerTokenEx
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the
@@ -105,8 +103,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	@Override
 	public OAuth2Authentication loadAuthentication(final String accessToken)
 			throws AuthenticationException, InvalidTokenException {
-
-		Map<String, Object> map = null;
+		Map<String, Object> map;
 
 		try {
 			map = getMap(tokenInfoEndpointUrl, accessToken);
@@ -118,7 +115,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 		if (map.containsKey("error")) {
 			logger.debug("userinfo returned error: " + map.get("error"));
-
 			String description = (String) map.get("error_description");
 			if (!StringUtils.hasText(description)) {
 				description = (String) map.get("error");
@@ -134,16 +130,11 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
 	protected Map<String, Object> getMap(final String tokenInfoEndpointUrl, final String accessToken) {
-		logger.info("Getting token info from: " + tokenInfoEndpointUrl);
-
+		logger.info("Getting token info from: {}", tokenInfoEndpointUrl);
 		String urlWithParameter = buildTokenInfoEndpointUrlWithParameter(tokenInfoEndpointUrl, accessToken);
-		@SuppressWarnings("rawtypes")
-		Map map = restTemplate.getForEntity(urlWithParameter, Map.class).getBody();
-
-		@SuppressWarnings("unchecked")
-		Map<String, Object> result = map;
-		return result;
+		return (Map<String, Object>) restTemplate.getForEntity(urlWithParameter, Map.class).getBody();
 	}
 
 	protected static String buildTokenInfoEndpointUrlWithParameter(final String tokenInfoEndpointUrl,
