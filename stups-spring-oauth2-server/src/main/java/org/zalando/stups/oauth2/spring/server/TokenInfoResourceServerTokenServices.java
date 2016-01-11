@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
@@ -34,7 +33,6 @@ import org.springframework.security.oauth2.provider.authentication.BearerTokenEx
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -156,7 +154,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	}
 
 	public static RestTemplate buildRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		RestTemplate restTemplate = new InternalRestTemplate(new HttpComponentsClientHttpRequestFactory());
 		final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
 		resource.setClientId("unused");
 		restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
