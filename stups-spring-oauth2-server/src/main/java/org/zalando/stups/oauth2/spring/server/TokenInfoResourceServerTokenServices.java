@@ -53,8 +53,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
 	private static final String SPACE = " ";
 
-	private static final String ACCESS_TOKEN_PARAM = "?access_token=";
-
 	private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
