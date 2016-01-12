@@ -16,11 +16,15 @@
 package org.zalando.stups.oauth2.spring.server;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
@@ -47,19 +51,19 @@ import org.springframework.web.client.RestTemplate;
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
-	private static final String ACCESS_TOKEN_PARAM = "?access_token=";
+	private static final String SPACE = " ";
 
 	private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-
-	private final String tokenInfoEndpointUrl;
 
 	private final String clientId;
 
 	private final RestTemplate restTemplate;
 
 	private final AuthenticationExtractor authenticationExtractor;
+	
+	private final URI tokenInfoEndpointUri;
 
 	/**
 	 * Specify 'tokenInfoEndpointUrl' to be used by this component.
@@ -93,7 +97,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 		Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
 		Assert.notNull(restTemplate, "RestTemplate should not be null");
 
-		this.tokenInfoEndpointUrl = tokenInfoEndpointUrl;
+		this.tokenInfoEndpointUri = URI.create(tokenInfoEndpointUrl);
 		this.authenticationExtractor = authenticationExtractor;
 		this.restTemplate = restTemplate;
 
@@ -104,10 +108,12 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	public OAuth2Authentication loadAuthentication(final String accessToken)
 			throws AuthenticationException, InvalidTokenException {
 
+		Assert.hasText(accessToken, "'accessToken' should never be null or empty");
+
 		Map<String, Object> map = null;
 
 		try {
-			map = getMap(tokenInfoEndpointUrl, accessToken);
+			map = getMap(accessToken);
 		} catch (OAuth2Exception e) {
 			throw e;
 		} catch (Exception e) {
@@ -132,21 +138,23 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 		throw new UnsupportedOperationException("Not supported: read access token");
 	}
 
-	protected Map<String, Object> getMap(final String tokenInfoEndpointUrl, final String accessToken) {
-		logger.info("Getting token info from: " + tokenInfoEndpointUrl);
+	protected Map<String, Object> getMap(final String accessToken) {
+		logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
 
-		String urlWithParameter = buildTokenInfoEndpointUrlWithParameter(tokenInfoEndpointUrl, accessToken);
+		RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri,accessToken);
 		@SuppressWarnings("rawtypes")
-		Map map = restTemplate.getForEntity(urlWithParameter, Map.class).getBody();
+		Map map = restTemplate.exchange(entity, Map.class).getBody();
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> result = map;
 		return result;
 	}
 
-	protected static String buildTokenInfoEndpointUrlWithParameter(final String tokenInfoEndpointUrl,
-			final String accessToken) {
-		return tokenInfoEndpointUrl + ACCESS_TOKEN_PARAM + accessToken;
+	public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken){
+		return RequestEntity.get(tokenInfoEndpointUri)
+							.accept(MediaType.APPLICATION_JSON)
+							.header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken)
+							.build();
 	}
 
 	public AuthenticationExtractor getAuthenticationExtractor() {
@@ -154,7 +162,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	}
 
 	public static RestTemplate buildRestTemplate() {
-		RestTemplate restTemplate = new InternalRestTemplate(new HttpComponentsClientHttpRequestFactory());
+		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
 		final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
 		resource.setClientId("unused");
 		restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
