@@ -38,6 +38,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
 import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
+import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 /**
  * @author  jbellmann
@@ -93,7 +94,7 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
         final AccessTokenProvider mockTokenProvider = mock(AccessTokenProvider.class);
         when(mockTokenProvider.obtainAccessToken(any(OAuth2ProtectedResourceDetails.class),
                 any(AccessTokenRequest.class))).thenReturn(new DefaultOAuth2AccessToken(token));
-        return new StupsOAuth2RestTemplate(mockTokenProvider, new HttpComponentsClientHttpRequestFactory());
+        return new StupsOAuth2RestTemplate(mockTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory());
     }
 
     protected String getBasePath() {

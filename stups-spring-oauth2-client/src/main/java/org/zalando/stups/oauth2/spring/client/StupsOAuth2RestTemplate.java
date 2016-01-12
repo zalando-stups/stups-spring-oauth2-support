@@ -33,14 +33,14 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 
 import org.springframework.web.client.RestTemplate;
+import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 public class StupsOAuth2RestTemplate extends RestTemplate {
 
     private final AccessTokenProvider accessTokenProvider;
 
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider) {
-        super();
-        this.accessTokenProvider = accessTokenProvider;
+        this(accessTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory());
     }
 
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
@@ -51,8 +51,8 @@ public class StupsOAuth2RestTemplate extends RestTemplate {
 
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
             final List<HttpMessageConverter<?>> messageConverters) {
-        super(messageConverters);
-        this.accessTokenProvider = accessTokenProvider;
+        this(accessTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory());
+        this.setMessageConverters(messageConverters);
     }
 
     @Override

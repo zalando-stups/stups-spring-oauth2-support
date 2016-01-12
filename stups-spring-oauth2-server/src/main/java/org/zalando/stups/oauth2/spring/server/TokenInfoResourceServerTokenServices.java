@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
@@ -38,6 +37,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the
@@ -162,7 +162,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	}
 
 	public static RestTemplate buildRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
 		final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
 		resource.setClientId("unused");
 		restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
