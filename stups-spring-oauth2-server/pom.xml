@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.zalando.stups</groupId>
         <artifactId>stups-spring-oauth2-support</artifactId>
-        <version>1.0.8-RC1</version>
+        <version>1.0.8-SNAPSHOT</version>
     </parent>
     <artifactId>stups-spring-oauth2-server</artifactId>
 
