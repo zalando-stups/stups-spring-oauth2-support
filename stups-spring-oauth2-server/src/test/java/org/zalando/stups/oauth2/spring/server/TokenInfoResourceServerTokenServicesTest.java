@@ -15,9 +15,15 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
-import org.assertj.core.api.Assertions;
+import java.net.URI;
+import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 
 /**
  * @author  jbellmann
@@ -64,12 +70,20 @@ public class TokenInfoResourceServerTokenServicesTest {
     }
 
     @Test
-    public void buildUrl() {
+    public void buildRequest() {
 
-        String url = TokenInfoResourceServerTokenServices.buildTokenInfoEndpointUrlWithParameter(TOKENINFO_URL,
-                "0123456789");
-        Assertions.assertThat(url).isNotNull();
-        Assertions.assertThat(url).isNotEmpty();
-        Assertions.assertThat(url).isEqualTo("https://someurl.com/tokeninfo?access_token=0123456789");
+    	RequestEntity<Void> entity = TokenInfoResourceServerTokenServices.buildRequestEntity(URI.create(TOKENINFO_URL), "0123456789");
+
+    	Assertions.assertThat(entity).isNotNull();
+    	
+    	Assertions.assertThat(entity.getMethod()).isEqualTo(HttpMethod.GET);
+    	Assertions.assertThat(entity.getUrl()).isEqualTo(URI.create(TOKENINFO_URL));
+    	
+    	Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.AUTHORIZATION);
+    	List<String> authorizationHeader = entity.getHeaders().get(HttpHeaders.AUTHORIZATION);
+    	Assertions.assertThat(authorizationHeader).containsExactly("Bearer 0123456789");
+    	
+    	Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.ACCEPT);
+    	Assertions.assertThat(entity.getHeaders().getAccept()).contains(MediaType.APPLICATION_JSON);
     }
 }
