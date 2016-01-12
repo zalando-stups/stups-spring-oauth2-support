@@ -20,12 +20,12 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,7 +44,16 @@ public class TokeninfoEndpoint {
     @RequestMapping(value = "/tokeninfo", params = {"access_token"})
     @ResponseBody
     public Map<String, Object> fakeTheResponse(@RequestParam("access_token") final String accessTokenParameter) {
+
+    	throw new RuntimeException("SHOULD NOT BE CALLED ANYMORE");
+    }
+
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/tokeninfo", params = {"!access_token"})
+    @ResponseBody
+    public Map<String, Object> fakeTheResponseWithoutParam(WebRequest webRequest) {
         logger.warn("------- FAKE_TOKENINFO -------");
+        String accessTokenParameter = webRequest.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length());
         logger.warn("access_token : {}", accessTokenParameter);
 
         Map<String, Object> result = null;
