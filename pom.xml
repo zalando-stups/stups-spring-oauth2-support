@@ -16,7 +16,6 @@
 		<module>stups-spring-oauth2-server</module>
 		<module>stups-http-components-oauth2</module>
 		<module>stups-jaxws-oauth2</module>
-		<module>stups-spring-oauth2-expression</module>
 	</modules>
 
 	<properties>
