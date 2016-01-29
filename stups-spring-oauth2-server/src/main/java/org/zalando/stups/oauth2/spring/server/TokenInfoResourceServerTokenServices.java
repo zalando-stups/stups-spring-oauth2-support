@@ -51,137 +51,135 @@ import org.springframework.web.client.RestTemplate;
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
-	private static final String SPACE = " ";
+    private static final String SPACE = " ";
 
-	private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
+    private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final String clientId;
+    private final String clientId;
 
-	private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-	private final AuthenticationExtractor authenticationExtractor;
-	
-	private final URI tokenInfoEndpointUri;
+    private final AuthenticationExtractor authenticationExtractor;
 
-	/**
-	 * Specify 'tokenInfoEndpointUrl' to be used by this component.
-	 *
-	 * @param tokenInfoEndpointUrl
-	 */
-	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
-		this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
-	}
+    private final URI tokenInfoEndpointUri;
 
-	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
-		this(tokenInfoEndpointUrl, clientId, new LaxAuthenticationExtractor(), buildRestTemplate());
-	}
+    /**
+     * Specify 'tokenInfoEndpointUrl' to be used by this component.
+     *
+     * @param tokenInfoEndpointUrl
+     */
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
+    }
 
-	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
-			final AuthenticationExtractor authenticationExtractor) {
-		this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, buildRestTemplate());
-	}
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
+        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor(), buildRestTemplate());
+    }
 
-	public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
-			final AuthenticationExtractor authenticationExtractor, final RestTemplate restTemplate) {
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
+            final AuthenticationExtractor authenticationExtractor) {
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, buildRestTemplate());
+    }
 
-		Assert.hasText(tokenInfoEndpointUrl, "TokenInfoEndpointUrl should never be null or empty");
-		try {
-			new URL(tokenInfoEndpointUrl);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("TokenInfoEndpointUrl is not an URL", e);
-		}
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
+            final AuthenticationExtractor authenticationExtractor, final RestTemplate restTemplate) {
 
-		Assert.hasText(clientId, "ClientId should never be null or empty");
-		Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
-		Assert.notNull(restTemplate, "RestTemplate should not be null");
+        Assert.hasText(tokenInfoEndpointUrl, "TokenInfoEndpointUrl should never be null or empty");
+        try {
+            new URL(tokenInfoEndpointUrl);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("TokenInfoEndpointUrl is not an URL", e);
+        }
 
-		this.tokenInfoEndpointUri = URI.create(tokenInfoEndpointUrl);
-		this.authenticationExtractor = authenticationExtractor;
-		this.restTemplate = restTemplate;
+        Assert.hasText(clientId, "ClientId should never be null or empty");
+        Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
+        Assert.notNull(restTemplate, "RestTemplate should not be null");
 
-		this.clientId = clientId;
-	}
+        this.tokenInfoEndpointUri = URI.create(tokenInfoEndpointUrl);
+        this.authenticationExtractor = authenticationExtractor;
+        this.restTemplate = restTemplate;
 
-	@Override
-	public OAuth2Authentication loadAuthentication(final String accessToken)
-			throws AuthenticationException, InvalidTokenException {
+        this.clientId = clientId;
+    }
 
-		Assert.hasText(accessToken, "'accessToken' should never be null or empty");
+    @Override
+    public OAuth2Authentication loadAuthentication(final String accessToken)
+            throws AuthenticationException, InvalidTokenException {
 
-		Map<String, Object> map = null;
+        Assert.hasText(accessToken, "'accessToken' should never be null or empty");
 
-		try {
-			map = getMap(accessToken);
-		} catch (OAuth2Exception e) {
-			throw e;
-		} catch (Exception e) {
-			throw new TokenInfoEndpointException("Retrieving information to 'accessToken' failed.", e);
-		}
+        Map<String, Object> map = null;
 
-		if (map.containsKey("error")) {
-			logger.debug("userinfo returned error: " + map.get("error"));
+        try {
+            map = getMap(accessToken);
+        } catch (OAuth2Exception e) {
+            throw e;
+        } catch (Exception e) {
+            throw new TokenInfoEndpointException("Retrieving information to 'accessToken' failed.", e);
+        }
 
-			String description = (String) map.get("error_description");
-			if (!StringUtils.hasText(description)) {
-				description = (String) map.get("error");
-			}
-			throw new InvalidTokenException(description);
-		}
+        if (map.containsKey("error")) {
+            logger.debug("userinfo returned error: " + map.get("error"));
 
-		return this.authenticationExtractor.extractAuthentication(map, clientId);
-	}
+            String description = (String) map.get("error_description");
+            if (!StringUtils.hasText(description)) {
+                description = (String) map.get("error");
+            }
+            throw new InvalidTokenException(description);
+        }
 
-	@Override
-	public OAuth2AccessToken readAccessToken(final String accessToken) {
-		throw new UnsupportedOperationException("Not supported: read access token");
-	}
+        return this.authenticationExtractor.extractAuthentication(map, clientId);
+    }
 
-	protected Map<String, Object> getMap(final String accessToken) {
-		logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
+    @Override
+    public OAuth2AccessToken readAccessToken(final String accessToken) {
+        throw new UnsupportedOperationException("Not supported: read access token");
+    }
 
-		RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri,accessToken);
-		@SuppressWarnings("rawtypes")
-		Map map = restTemplate.exchange(entity, Map.class).getBody();
+    protected Map<String, Object> getMap(final String accessToken) {
+        logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
 
-		@SuppressWarnings("unchecked")
-		Map<String, Object> result = map;
-		return result;
-	}
+        RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
+        @SuppressWarnings("rawtypes")
+        Map map = restTemplate.exchange(entity, Map.class).getBody();
 
-	public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken){
-		return RequestEntity.get(tokenInfoEndpointUri)
-							.accept(MediaType.APPLICATION_JSON)
-							.header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken)
-							.build();
-	}
+        @SuppressWarnings("unchecked")
+        Map<String, Object> result = map;
+        return result;
+    }
 
-	public AuthenticationExtractor getAuthenticationExtractor() {
-		return this.authenticationExtractor;
-	}
+    public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken) {
+        return RequestEntity.get(tokenInfoEndpointUri).accept(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken).build();
+    }
 
-	public static RestTemplate buildRestTemplate() {
-		RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-		final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-		resource.setClientId("unused");
-		restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
-		return restTemplate;
-	}
+    public AuthenticationExtractor getAuthenticationExtractor() {
+        return this.authenticationExtractor;
+    }
 
-	static class TokenInfoEndpointException extends OAuth2Exception {
+    public static RestTemplate buildRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
+        resource.setClientId("unused");
+        restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
+        return restTemplate;
+    }
 
-		private static final long serialVersionUID = 1L;
+    static class TokenInfoEndpointException extends OAuth2Exception {
 
-		private static final String DEFAULT_MESSAGE = "Unknown Exception when calling TokenInfoEndpoint";
+        private static final long serialVersionUID = 1L;
 
-		public TokenInfoEndpointException(Throwable t) {
-			this(DEFAULT_MESSAGE, t);
-		}
+        private static final String DEFAULT_MESSAGE = "Unknown Exception when calling TokenInfoEndpoint";
 
-		public TokenInfoEndpointException(String msg, Throwable t) {
-			super(msg, t);
-		}
+        public TokenInfoEndpointException(Throwable t) {
+            this(DEFAULT_MESSAGE, t);
+        }
 
-	}
+        public TokenInfoEndpointException(String msg, Throwable t) {
+            super(msg, t);
+        }
+
+    }
 }

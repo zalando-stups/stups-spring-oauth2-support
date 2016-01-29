@@ -16,27 +16,29 @@
 package some.test.config;
 
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
 import org.springframework.http.HttpMethod;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.error.DefaultOAuth2ExceptionRenderer;
+import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
+import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
+import org.springframework.security.oauth2.provider.error.OAuth2ExceptionRenderer;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-
+import org.zalando.stups.oauth2.spring.security.expression.ExtendedOAuth2WebSecurityExpressionHandler;
 import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 /**
- * Configures the Resource-Server. We want the resources under '/secure/**' secured by OAuth2 and the needed scope is
- * 'testscope'.
+ * Configures the Resource-Server. We want the resources under '/secure/**'
+ * secured by OAuth2 and the needed scope is 'testscope'.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @Configuration
 @EnableResourceServer
@@ -45,23 +47,36 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Value("${spring.oauth2.resource.tokenInfoUri}")
     private String tokenInfoUri;
 
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        OAuth2ExceptionRenderer exceptionRenderer = new DefaultOAuth2ExceptionRenderer();
+
+        final OAuth2AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
+        authenticationEntryPoint.setExceptionRenderer(exceptionRenderer);
+
+        final OAuth2AccessDeniedHandler accessDeniedHandler = new OAuth2AccessDeniedHandler();
+        accessDeniedHandler.setExceptionRenderer(exceptionRenderer);
+
+        resources.authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler);
+        // here is the important part
+        resources.expressionHandler(new ExtendedOAuth2WebSecurityExpressionHandler());
+    }
+
     /**
      * Configure scopes for specific controller/httpmethods/roles here.
      */
     @Override
     public void configure(final HttpSecurity http) throws Exception {
 
-        //J-
+        // @formatter:off
         http
             .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.NEVER)
             .and()
-                .requestMatchers()
-                    .antMatchers("/secured/**")
-            .and()
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/secured/**").access("#oauth2.hasScope('testscope')");
-        //J+
+                    .antMatchers(HttpMethod.GET, "/secured/**").access("#oauth2.hasScope('testscope')")
+                    .antMatchers(HttpMethod.GET, "/realmSecured/**").access("#oauth2.hasRealm('/customrealm')");
+        // @formatter:on
     }
 
     @Profile("defaultAuthentication")
@@ -74,7 +89,7 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     /**
      * @return
      *
-     * @deprecated  lax will become the new default
+     * @deprecated lax will become the new default
      */
     @Deprecated
     @Profile("laxAuthentication")

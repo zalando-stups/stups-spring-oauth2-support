@@ -16,31 +16,24 @@
 package some.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Matchers.any;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
-
 import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 
 /**
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
 
@@ -87,6 +80,27 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
         RestOperations restOperations = buildClient("no-scope");
 
         restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+    }
+
+    @Test
+    public void invokeOAuthSecuredWithRealmServiceWithLaxAuthorizationAndTheValueSetToFalse() {
+        RestOperations restOperations = buildClient("123456789");
+
+        restOperations.getForEntity(getBasePath() + "/realmSecured/hello/realm", String.class);
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void invokeOAuthSecuredWithInvalidRealm() {
+        RestOperations restOperations = buildClient("invalidRealm");
+
+        restOperations.getForEntity(getBasePath() + "/realmSecured/hello/realm", String.class);
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void invokeOAuthSecuredWithNoRealm() {
+        RestOperations restOperations = buildClient("noRealm");
+
+        restOperations.getForEntity(getBasePath() + "/realmSecured/hello/realm", String.class);
     }
 
     protected RestOperations buildClient(final String token) {
