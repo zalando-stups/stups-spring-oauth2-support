@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEn
 import org.springframework.security.oauth2.provider.error.OAuth2ExceptionRenderer;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.zalando.stups.oauth2.spring.security.expression.ExtendedOAuth2WebSecurityExpressionHandler;
-import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
+import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 /**
@@ -83,7 +83,7 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new LaxAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new DefaultAuthenticationExtractor());
     }
 
     /**
@@ -96,7 +96,7 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
     @Bean
     public ResourceServerTokenServices laxResourceTokenServices() {
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new LaxAuthenticationExtractor());
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new DefaultAuthenticationExtractor());
     }
 
 }
