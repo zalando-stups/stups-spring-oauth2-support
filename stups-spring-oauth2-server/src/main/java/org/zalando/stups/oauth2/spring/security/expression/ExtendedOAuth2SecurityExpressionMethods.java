@@ -20,6 +20,8 @@ public class ExtendedOAuth2SecurityExpressionMethods extends OAuth2SecurityExpre
 
     private final Authentication authentication;
 
+    private final String[] uidScope = new String[] { "uid" };
+
     @Override
     public boolean throwOnError(boolean decision) {
         if (!decision && !missingRealms.isEmpty()) {
@@ -47,8 +49,16 @@ public class ExtendedOAuth2SecurityExpressionMethods extends OAuth2SecurityExpre
         return result;
     }
 
-    public boolean hasInTokenInfo(String key, String value) {
-        return false;
+    public boolean hasUidScopeAndRealm(String realm) {
+        return hasUidScopeAndAnyRealm(realm);
     }
 
+    public boolean hasUidScopeAndAnyRealm(String... realms) {
+        boolean scopeResult = RealmOAuth2ExpressionUtils.hasAnyScope(authentication, uidScope);
+        boolean realmResult = RealmOAuth2ExpressionUtils.hasAnyRealm(authentication, realms);
+        if (!realmResult) {
+            missingRealms.addAll(Arrays.asList(realms));
+        }
+        return realmResult && scopeResult;
+    }
 }

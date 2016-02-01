@@ -75,7 +75,8 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
             .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/secured/**").access("#oauth2.hasScope('testscope')")
-                    .antMatchers(HttpMethod.GET, "/realmSecured/**").access("#oauth2.hasRealm('/customrealm')");
+                    .antMatchers(HttpMethod.GET, "/realmSecured/**").access("#oauth2.hasRealm('/customrealm')")
+                    .antMatchers(HttpMethod.GET, "/combinedRealmSecured/**").access("#oauth2.hasUidScopeAndRealm('/customrealm')");
         // @formatter:on
     }
 

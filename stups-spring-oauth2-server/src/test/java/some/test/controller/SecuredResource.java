@@ -48,4 +48,11 @@ public class SecuredResource {
         return "hello " + term;
     }
 
+    @RequestMapping("/combinedRealmSecured/hello/{term}")
+    public String helloRealmCombined(@PathVariable final String term) {
+        Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        logger.info("REALM-COMBINED-SECURED-RESOURCE ACCESSED WITH TOKEN : {}", accessToken.get());
+        return "hello " + term;
+    }
+
 }

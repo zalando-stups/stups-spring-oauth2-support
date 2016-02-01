@@ -1,4 +1,4 @@
-package org.zalando.stups.oauth2.spring.security;
+package org.zalando.stups.oauth2.spring.security.expression;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

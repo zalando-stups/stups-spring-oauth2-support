@@ -1,4 +1,4 @@
-package org.zalando.stups.oauth2.spring.security;
+package org.zalando.stups.oauth2.spring.security.expression;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -13,9 +13,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.util.StreamUtils;
-import org.zalando.stups.oauth2.spring.security.expression.RealmOAuth2ExpressionUtils;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -76,6 +76,34 @@ public class RealmOAuth2ExpressionUtilsTest {
         boolean result = RealmOAuth2ExpressionUtils.hasAnyRealm(authentication,
                 new String[] { "/customrealm", "kaiser", "yourFancyRealm" });
         Assertions.assertThat(result).isTrue();
+    }
+
+    @Test
+    public void testHasUidScopeAndCustomRealm() {
+        OAuth2Authentication authentication = tokenInfoService.loadAuthentication("123456789");
+        ExtendedOAuth2SecurityExpressionMethods methods = new ExtendedOAuth2SecurityExpressionMethods(authentication);
+        boolean result = methods.hasUidScopeAndRealm("/customrealm");
+
+        Assertions.assertThat(result).isTrue();
+    }
+
+    @Test
+    public void testHasUidScopeAndAnyCustomRealm() {
+        OAuth2Authentication authentication = tokenInfoService.loadAuthentication("123456789");
+        ExtendedOAuth2SecurityExpressionMethods methods = new ExtendedOAuth2SecurityExpressionMethods(authentication);
+        boolean result = methods.hasUidScopeAndAnyRealm("/customrealm", "anotherRealm");
+
+        Assertions.assertThat(result).isTrue();
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void testHasUidScopeAndAnyCustomRealmThrowsException() {
+        OAuth2Authentication authentication = tokenInfoService.loadAuthentication("123456789");
+        ExtendedOAuth2SecurityExpressionMethods methods = new ExtendedOAuth2SecurityExpressionMethods(authentication);
+        boolean result = methods.hasUidScopeAndAnyRealm("/notexistentrealm", "doesnotExist");
+
+        Assertions.assertThat(result).isFalse();
+        methods.throwOnError(result);
     }
 
     protected Resource jsonResource(String filename) {

@@ -103,6 +103,20 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
         restOperations.getForEntity(getBasePath() + "/realmSecured/hello/realm", String.class);
     }
 
+    @Test
+    public void invokeOAuthSecuredWithUidScopeAndRealm() {
+        RestOperations restOperations = buildClient("123456789");
+
+        restOperations.getForEntity(getBasePath() + "/combinedRealmSecured/hello/realm", String.class);
+    }
+
+    @Test(expected = HttpClientErrorException.class)
+    public void invokeOAuthSecuredWithoutUidScopeAndRealm() {
+        RestOperations restOperations = buildClient("no-uid");
+
+        restOperations.getForEntity(getBasePath() + "/combinedRealmSecured/hello/realm", String.class);
+    }
+
     protected RestOperations buildClient(final String token) {
         final AccessTokenProvider mockTokenProvider = mock(AccessTokenProvider.class);
         when(mockTokenProvider.obtainAccessToken(any(OAuth2ProtectedResourceDetails.class),
