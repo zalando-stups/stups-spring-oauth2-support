@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
 import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
@@ -38,6 +37,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the
@@ -135,34 +135,21 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         return this.authenticationExtractor.extractAuthentication(map, clientId);
     }
 
-    @Override
-    public OAuth2AccessToken readAccessToken(final String accessToken) {
-        throw new UnsupportedOperationException("Not supported: read access token");
-    }
-
-    protected Map<String, Object> getMap(final String accessToken) {
-        logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
-
-        RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
-        @SuppressWarnings("rawtypes")
-        Map map = restTemplate.exchange(entity, Map.class).getBody();
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = map;
-        return result;
-    }
-
+    //@formatter:off
     public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken) {
-        return RequestEntity.get(tokenInfoEndpointUri).accept(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken).build();
+        return RequestEntity.get(tokenInfoEndpointUri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken)
+                            .build();
     }
+    //@formatter:on
 
     public AuthenticationExtractor getAuthenticationExtractor() {
         return this.authenticationExtractor;
     }
 
     public static RestTemplate buildRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
         final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
         resource.setClientId("unused");
         restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
@@ -182,6 +169,23 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         public TokenInfoEndpointException(String msg, Throwable t) {
             super(msg, t);
         }
-
     }
+
+    @Override
+    public OAuth2AccessToken readAccessToken(final String accessToken) {
+        throw new UnsupportedOperationException("Not supported: read access token");
+    }
+
+    protected Map<String, Object> getMap(final String accessToken) {
+        logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
+
+        RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
+        @SuppressWarnings("rawtypes")
+        Map map = restTemplate.exchange(entity, Map.class).getBody();
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> result = map;
+        return result;
+    }
+
 }

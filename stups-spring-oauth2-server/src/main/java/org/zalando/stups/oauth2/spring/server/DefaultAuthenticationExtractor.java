@@ -24,9 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Will become the new 'default'.
- *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class DefaultAuthenticationExtractor extends AbstractAuthenticationExtractor {
 
@@ -42,9 +40,9 @@ public class DefaultAuthenticationExtractor extends AbstractAuthenticationExtrac
     /**
      * Extract scopes from 'scopes'-dictionary.
      *
-     * @param   map
+     * @param map
      *
-     * @return  scopes
+     * @return scopes
      */
     protected Set<String> getScopesFromMap(final Map<String, Object> map) {
         Set<String> scopes = new HashSet<String>();
