@@ -27,7 +27,7 @@ import com.google.common.base.Optional;
 /**
  * The Resource we secured with OAuth2.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @RestController
 public class SecuredResource {
@@ -38,6 +38,20 @@ public class SecuredResource {
     public String hello(@PathVariable final String term) {
         Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
         logger.info("SECURED-RESOURCE ACCESSED WITH TOKEN : {}", accessToken.get());
+        return "hello " + term;
+    }
+
+    @RequestMapping("/realmSecured/hello/{term}")
+    public String helloRealm(@PathVariable final String term) {
+        Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        logger.info("REALM-SECURED-RESOURCE ACCESSED WITH TOKEN : {}", accessToken.get());
+        return "hello " + term;
+    }
+
+    @RequestMapping("/combinedRealmSecured/hello/{term}")
+    public String helloRealmCombined(@PathVariable final String term) {
+        Optional<String> accessToken = AccessTokenUtils.getAccessTokenFromSecurityContext();
+        logger.info("REALM-COMBINED-SECURED-RESOURCE ACCESSED WITH TOKEN : {}", accessToken.get());
         return "hello " + term;
     }
 

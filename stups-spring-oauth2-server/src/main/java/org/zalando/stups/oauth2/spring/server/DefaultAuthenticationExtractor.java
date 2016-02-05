@@ -26,13 +26,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Will become the new 'default'.
  *
- * @author jbellmann
- * @deprecated use {@link DefaultAuthenticationExtractor}
+ * @author  jbellmann
  */
-@Deprecated
-public class LaxAuthenticationExtractor extends AbstractAuthenticationExtractor {
+public class DefaultAuthenticationExtractor extends AbstractAuthenticationExtractor {
 
-    private final Logger logger = LoggerFactory.getLogger(LaxAuthenticationExtractor.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultAuthenticationExtractor.class);
 
     @Override
     protected Set<String> resolveScopes(final Map<String, Object> map) {
@@ -44,9 +42,9 @@ public class LaxAuthenticationExtractor extends AbstractAuthenticationExtractor 
     /**
      * Extract scopes from 'scopes'-dictionary.
      *
-     * @param map
+     * @param   map
      *
-     * @return scopes
+     * @return  scopes
      */
     protected Set<String> getScopesFromMap(final Map<String, Object> map) {
         Set<String> scopes = new HashSet<String>();

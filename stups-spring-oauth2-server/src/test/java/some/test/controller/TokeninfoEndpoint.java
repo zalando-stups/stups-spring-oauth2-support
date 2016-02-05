@@ -33,7 +33,7 @@ import com.google.common.collect.Maps;
 /**
  * Maybe this works.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @Controller
 public class TokeninfoEndpoint {
@@ -41,15 +41,15 @@ public class TokeninfoEndpoint {
     private final Logger logger = LoggerFactory.getLogger(TokeninfoEndpoint.class);
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/tokeninfo", params = {"access_token"})
+    @RequestMapping(value = "/tokeninfo", params = { "access_token" })
     @ResponseBody
     public Map<String, Object> fakeTheResponse(@RequestParam("access_token") final String accessTokenParameter) {
 
-    	throw new RuntimeException("SHOULD NOT BE CALLED ANYMORE");
+        throw new RuntimeException("SHOULD NOT BE CALLED ANYMORE");
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/tokeninfo", params = {"!access_token"})
+    @RequestMapping(value = "/tokeninfo", params = { "!access_token" })
     @ResponseBody
     public Map<String, Object> fakeTheResponseWithoutParam(WebRequest webRequest) {
         logger.warn("------- FAKE_TOKENINFO -------");
@@ -77,6 +77,12 @@ public class TokeninfoEndpoint {
             result = buildAccessToken(accessTokenParameter);
             result.put("testscope", Boolean.FALSE);
             result.put("simpleScope", Boolean.FALSE);
+        } else if (accessTokenParameter.contains("invalidRealm")) {
+            result = buildAccessToken(accessTokenParameter);
+            result.put("realm", "nonexistent-realm");
+        } else if (accessTokenParameter.contains("noRealm")) {
+            result = buildAccessToken(accessTokenParameter);
+            result.remove("realm");
         } else {
             result = buildAccessToken(accessTokenParameter);
         }
@@ -100,6 +106,7 @@ public class TokeninfoEndpoint {
         result.put("scope", Lists.newArrayList("uid", "simpleScope", "extrascope", "testscope"));
         result.put("testscope", Boolean.TRUE);
         result.put("simpleScope", Boolean.FALSE);
+        result.put("realm", "/customrealm");
 
         return result;
     }

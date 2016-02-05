@@ -16,21 +16,15 @@
 package some.test;
 
 import org.assertj.core.api.Assertions;
-
 import org.junit.Before;
-
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
-
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.zalando.stups.oauth2.spring.server.LaxAuthenticationExtractor;
+import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
 
 import some.test.controller.SecuredResource;
@@ -41,10 +35,10 @@ import some.test.controller.TokeninfoEndpoint;
  * Tokeninfo-Endpoint faked by {@link TokeninfoEndpoint}.<br/>
  * SecuredResource found at {@link SecuredResource}.<br/>
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {SampleApplication.class})
+@SpringApplicationConfiguration(classes = { SampleApplication.class })
 @WebIntegrationTest(randomPort = false)
 @DirtiesContext
 @ActiveProfiles({ "custom", "defaultAuthentication" })
@@ -56,8 +50,8 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
     @Before
     public void setUp() {
         Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isNotNull();
-        Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor()).isExactlyInstanceOf(
-            LaxAuthenticationExtractor.class);
+        Assertions.assertThat(tokenInfoResourceServerTokenServices.getAuthenticationExtractor())
+                .isExactlyInstanceOf(DefaultAuthenticationExtractor.class);
     }
 
 }
