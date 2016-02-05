@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 
 /**
  * @author  jbellmann
@@ -85,5 +86,11 @@ public class TokenInfoResourceServerTokenServicesTest {
     	
     	Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.ACCEPT);
     	Assertions.assertThat(entity.getHeaders().getAccept()).contains(MediaType.APPLICATION_JSON);
+    }
+
+    @Test(expected = InvalidTokenException.class)
+    public void emptyTokenIsInvalid() {
+        final TokenInfoResourceServerTokenServices unit = new TokenInfoResourceServerTokenServices(TOKENINFO_URL);
+        unit.loadAuthentication("");
     }
 }

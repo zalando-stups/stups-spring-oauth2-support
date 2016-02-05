@@ -108,7 +108,9 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 	public OAuth2Authentication loadAuthentication(final String accessToken)
 			throws AuthenticationException, InvalidTokenException {
 
-		Assert.hasText(accessToken, "'accessToken' should never be null or empty");
+		if (!StringUtils.hasText(accessToken)) {
+			throw new InvalidTokenException("'accessToken' should never be null or empty");
+		}
 
 		Map<String, Object> map = null;
 
