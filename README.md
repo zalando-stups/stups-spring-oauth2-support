@@ -3,6 +3,10 @@
 [![Build Status](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support.svg?branch=master)](https://travis-ci.org/zalando-stups/stups-spring-oauth2-support)
 [![codecov.io](https://codecov.io/github/zalando-stups/stups-spring-oauth2-support/coverage.svg?branch=master)](https://codecov.io/github/zalando-stups/stups-spring-oauth2-support?branch=master)
 
+###Latest Release-Notes
+
+Check the Release-Notes for the [latest release here.](https://github.com/zalando-stups/stups-spring-oauth2-support/releases/latest)
+
 ###Dependencies
 
 ![Maven Central](https://img.shields.io/maven-central/v/org.zalando.stups/stups-spring-oauth2-support.svg)
