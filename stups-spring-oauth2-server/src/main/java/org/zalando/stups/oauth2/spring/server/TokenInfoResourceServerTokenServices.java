@@ -15,6 +15,7 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -22,22 +23,25 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.http.OAuth2ErrorHandler;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARER_TYPE;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the
@@ -55,6 +59,9 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
     private static final String CLIENT_ID_NOT_NEEDED = "CLIENT_ID_NOT_NEEDED";
 
+    private static final ParameterizedTypeReference<Map<String, Object>> TOKENINFO_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+    };
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final String clientId;
@@ -65,11 +72,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
     private final URI tokenInfoEndpointUri;
 
-    /**
-     * Specify 'tokenInfoEndpointUrl' to be used by this component.
-     *
-     * @param tokenInfoEndpointUrl
-     */
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
         this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
     }
@@ -112,18 +114,10 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             throw new InvalidTokenException("'accessToken' should never be null or empty");
         }
 
-        Map<String, Object> map = null;
-
-        try {
-            map = getMap(accessToken);
-        } catch (OAuth2Exception e) {
-            throw e;
-        } catch (Exception e) {
-            throw new TokenInfoEndpointException("Retrieving information to 'accessToken' failed.", e);
-        }
+        final Map<String, Object> map = getMap(accessToken);
 
         if (map.containsKey("error")) {
-            logger.debug("userinfo returned error: " + map.get("error"));
+            logger.debug("tokeninfo returned error: " + map.get("error"));
 
             String description = (String) map.get("error_description");
             if (!StringUtils.hasText(description)) {
@@ -139,7 +133,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken) {
         return RequestEntity.get(tokenInfoEndpointUri)
                             .accept(MediaType.APPLICATION_JSON)
-                            .header(HttpHeaders.AUTHORIZATION, OAuth2AccessToken.BEARER_TYPE + SPACE + accessToken)
+                            .header(AUTHORIZATION, BEARER_TYPE + SPACE + accessToken)
                             .build();
     }
     //@formatter:on
@@ -149,26 +143,9 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     }
 
     public static RestTemplate buildRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
-        final BaseOAuth2ProtectedResourceDetails resource = new BaseOAuth2ProtectedResourceDetails();
-        resource.setClientId("unused");
-        restTemplate.setErrorHandler(new OAuth2ErrorHandler(resource));
+        final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
+        restTemplate.setErrorHandler(new TokenInfoResponseErrorHandler());
         return restTemplate;
-    }
-
-    static class TokenInfoEndpointException extends OAuth2Exception {
-
-        private static final long serialVersionUID = 1L;
-
-        private static final String DEFAULT_MESSAGE = "Unknown Exception when calling TokenInfoEndpoint";
-
-        public TokenInfoEndpointException(Throwable t) {
-            this(DEFAULT_MESSAGE, t);
-        }
-
-        public TokenInfoEndpointException(String msg, Throwable t) {
-            super(msg, t);
-        }
     }
 
     @Override
@@ -178,14 +155,16 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
     protected Map<String, Object> getMap(final String accessToken) {
         logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
-
-        RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
-        @SuppressWarnings("rawtypes")
-        Map map = restTemplate.exchange(entity, Map.class).getBody();
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> result = map;
-        return result;
+        final RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
+        return restTemplate.exchange(entity, TOKENINFO_MAP).getBody();
     }
 
+    public static class TokenInfoResponseErrorHandler extends DefaultResponseErrorHandler{
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
+            if (response.getStatusCode() != BAD_REQUEST) {
+                super.handleError(response);
+            }
+        }
+    }
 }
