@@ -73,7 +73,8 @@ public class TokenInfoResourceServerTokenServicesTest {
     @Test
     public void buildRequest() {
 
-    	RequestEntity<Void> entity = TokenInfoResourceServerTokenServices.buildRequestEntity(URI.create(TOKENINFO_URL), "0123456789");
+        RequestEntity<Void> entity = DefaultTokenInfoRequestExecutor.buildRequestEntity(URI.create(TOKENINFO_URL),
+                "0123456789");
 
     	Assertions.assertThat(entity).isNotNull();
     	

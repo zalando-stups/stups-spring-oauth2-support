@@ -54,21 +54,39 @@ public class ClientHttpRequestFactorySelector {
 		return new HttpComponentsClientHttpRequestFactory();
 	}
 	
+    /**
+     * Builds a {@link ClientHttpRequestFactory} with timeout-defaults.
+     * 
+     * @return {@link ClientHttpRequestFactory}
+     * @see TimeoutConfig.Builder for default-timeout values
+     */
 	public static ClientHttpRequestFactory getRequestFactory() {
-		Properties properties = System.getProperties();
-		String proxyHost = properties.getProperty("http.proxyHost");
-		int proxyPort = properties.containsKey("http.proxyPort") ? Integer.valueOf(properties.getProperty("http.proxyPort")) : 80;
-		if (HTTP_COMPONENTS_AVAILABLE) {
-			return HttpComponentsClientRequestFactoryCreator.createRequestFactory(proxyHost, proxyPort);
-		} else {
-			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-			if (proxyHost != null) {
-				requestFactory.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
-			}
-			return requestFactory;
-		}
+        return getRequestFactory(TimeoutConfig.withDefaults());
 	}
-	
+
+    public static ClientHttpRequestFactory getRequestFactory(TimeoutConfig timeoutConfig) {
+        Properties properties = System.getProperties();
+        String proxyHost = properties.getProperty("http.proxyHost");
+        int proxyPort = properties.containsKey("http.proxyPort")
+                ? Integer.valueOf(properties.getProperty("http.proxyPort")) : 80;
+        if (HTTP_COMPONENTS_AVAILABLE) {
+            HttpComponentsClientHttpRequestFactory factory = (HttpComponentsClientHttpRequestFactory) HttpComponentsClientRequestFactoryCreator
+                    .createRequestFactory(proxyHost, proxyPort);
+            factory.setReadTimeout(timeoutConfig.getReadTimeout());
+            factory.setConnectTimeout(timeoutConfig.getConnectTimeout());
+            factory.setConnectionRequestTimeout(timeoutConfig.getConnectionRequestTimeout());
+            return factory;
+        } else {
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setConnectTimeout(timeoutConfig.getConnectTimeout());
+            requestFactory.setReadTimeout(timeoutConfig.getReadTimeout());
+            if (proxyHost != null) {
+                requestFactory.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort)));
+            }
+            return requestFactory;
+        }
+    }
+
 	/**
 	 * Decorates a request factory to buffer responses so that the responses may be repeatedly read.
 	 * @param requestFactory the request factory to be decorated for buffering
