@@ -49,7 +49,8 @@ public class LeakTokenTest {
 
 		RestTemplate restTemplate = new TestInternalRestTemplate(new HttpComponentsClientHttpRequestFactory());
 		try {
-			restTemplate.exchange(TokenInfoResourceServerTokenServices.buildRequestEntity(URI.create(URL), TOKEN), Map.class);
+            restTemplate.exchange(DefaultTokenInfoRequestExecutor.buildRequestEntity(URI.create(URL), TOKEN),
+                    Map.class);
 		} catch (ResourceAccessException e) {
 			targetException = e;
 		}
