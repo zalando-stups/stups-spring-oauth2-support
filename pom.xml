@@ -29,7 +29,7 @@
 		<mockito.version>1.10.19</mockito.version>
 		<json-path.version>2.0.0</json-path.version>
 
-		<stups-tokens.version>0.9.8</stups-tokens.version>
+		<stups-tokens.version>0.9.9</stups-tokens.version>
 		<spring-boot-zalando-stups-tokens.version>0.9.6</spring-boot-zalando-stups-tokens.version>
 		<kio-client-java-spring.version>0.9.4</kio-client-java-spring.version>
 
