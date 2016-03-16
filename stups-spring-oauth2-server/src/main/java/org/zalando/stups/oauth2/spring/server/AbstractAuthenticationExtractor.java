@@ -16,21 +16,22 @@
 package org.zalando.stups.oauth2.spring.server;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-
 import org.springframework.util.StringUtils;
 
 /**
  * Common code for current {@link AuthenticationExtractor}-implementations.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class AbstractAuthenticationExtractor implements AuthenticationExtractor {
 
@@ -39,15 +40,33 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     private boolean throwExceptionOnEmptyUid = true;
 
     @Override
-    public OAuth2Authentication extractAuthentication(final Map<String, Object> map, final String clientId) {
-        UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(getPrincipal(map), "N/A",
-                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER"));
-        user.setDetails(map);
+    public OAuth2Authentication extractAuthentication(final Map<String, Object> tokenInfoMap, final String clientId) {
+        UsernamePasswordAuthenticationToken user = createAuthenticationToken(tokenInfoMap);
 
         // at the moment there is other way
-        Set<String> scopes = resolveScopes(map);
+        Set<String> scopes = resolveScopes(tokenInfoMap);
 
-        //
+        return buildOAuth2Authentication(user, scopes, clientId);
+    }
+
+    protected UsernamePasswordAuthenticationToken createAuthenticationToken(final Map<String, Object> tokenInfoMap) {
+        List<GrantedAuthority> authorities = createAuthorityList(tokenInfoMap);
+
+        UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(getPrincipal(tokenInfoMap), "N/A",
+                authorities);
+
+        user.setDetails(tokenInfoMap);
+
+        return user;
+    }
+
+    protected List<GrantedAuthority> createAuthorityList(final Map<String, Object> map) {
+        return AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
+    }
+
+    protected OAuth2Authentication buildOAuth2Authentication(UsernamePasswordAuthenticationToken user,
+            Set<String> scopes, String clientId) {
+
         OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
         return new OAuth2Authentication(request, user);
     }
@@ -82,16 +101,18 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     /**
-     * There is not standardized name for the 'userId' in the 'TokenInfo'-Object.
+     * There is not standardized name for the 'userId' in the
+     * 'TokenInfo'-Object.
      *
      * @return
      */
     protected String[] getPossibleUserIdKeys() {
 
         // we only use 'uid' at the moment for userids
-        return new String[] {UID_SCOPE};
+        return new String[] { UID_SCOPE };
 
-// return new String[] {"uid", "user", "username", "userid", "user_id", "login", "id", "name"};
+        // return new String[] {"uid", "user", "username", "userid", "user_id",
+        // "login", "id", "name"};
     }
 
     public boolean isThrowExceptionOnEmptyUid() {
