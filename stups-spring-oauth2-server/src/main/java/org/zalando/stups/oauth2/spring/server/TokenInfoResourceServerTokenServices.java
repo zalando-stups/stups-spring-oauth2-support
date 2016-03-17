@@ -95,6 +95,10 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         }
 
         final Map<String, Object> map = getMap(accessToken);
+        if (map == null) {
+            logger.warn("'null' is not the expected response by TokenInfoEndpoint");
+            throw new InvalidTokenException("Unable to fetch tokeninfo.");
+        }
 
         if (map.containsKey("error")) {
             logger.debug("tokeninfo returned error: " + map.get("error"));
