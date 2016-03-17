@@ -55,6 +55,14 @@ public class StupsOAuth2RestTemplate extends RestTemplate {
         this.setMessageConverters(messageConverters);
     }
 
+    public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
+                                   final ClientHttpRequestFactory requestFactory, final List<HttpMessageConverter<?>> messageConverters) {
+        super(requestFactory);
+        this.accessTokenProvider = accessTokenProvider;
+        this.setMessageConverters(messageConverters);
+    }
+    
+
     @Override
     protected ClientHttpRequest createRequest(final URI url, final HttpMethod method) throws IOException {
         final ClientHttpRequest request = super.createRequest(url, method);
