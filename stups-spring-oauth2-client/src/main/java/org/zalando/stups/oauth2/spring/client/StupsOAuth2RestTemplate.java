@@ -32,6 +32,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
@@ -46,6 +47,7 @@ public class StupsOAuth2RestTemplate extends RestTemplate {
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
             final ClientHttpRequestFactory requestFactory) {
         super(requestFactory);
+        Assert.notNull(accessTokenProvider, "accessTokenProvider must not be null");
         this.accessTokenProvider = accessTokenProvider;
     }
 
@@ -57,6 +59,9 @@ public class StupsOAuth2RestTemplate extends RestTemplate {
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
                                    final ClientHttpRequestFactory requestFactory, final List<HttpMessageConverter<?>> messageConverters) {
         super(requestFactory);
+        Assert.notNull(accessTokenProvider, "accessTokenProvider must not be null");
+        Assert.notEmpty(messageConverters, "messageConverters can´t be empty");
+        
         this.accessTokenProvider = accessTokenProvider;
         this.setMessageConverters(messageConverters);
     }

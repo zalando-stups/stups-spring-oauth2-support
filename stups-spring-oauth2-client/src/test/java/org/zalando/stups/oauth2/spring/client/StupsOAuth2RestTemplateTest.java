@@ -28,6 +28,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,18 +75,30 @@ public class StupsOAuth2RestTemplateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testRestTemplateInitialisationWithIllegalArguments1(){
+        new StupsOAuth2RestTemplate(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRestTemplateInitialisationWithIllegalArguments2(){
         List<HttpMessageConverter<?>> messageConverterList = null;
         new StupsOAuth2RestTemplate(null, messageConverterList);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRestTemplateInitialisationWithIllegalArguments3(){
+        List<HttpMessageConverter<?>> messageConverterList = Lists.emptyList();
+        AccessTokenProvider accessTokenProvider = mock(AccessTokenProvider.class);
+        new StupsOAuth2RestTemplate(accessTokenProvider, messageConverterList);
+    }
     
     @Test(expected = IllegalArgumentException.class)
-    public void testRestTemplateInitialisationWithIllegalArguments2(){
+    public void testRestTemplateInitialisationWithIllegalArguments4(){
         ClientHttpRequestFactory requestFactory = null;
         new StupsOAuth2RestTemplate(null, requestFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRestTemplateInitialisationWithIllegalArguments3(){
+    public void testRestTemplateInitialisationWithIllegalArguments5(){
         new StupsOAuth2RestTemplate(null, null, null);
     }
 }
