@@ -51,8 +51,7 @@ public class StupsOAuth2RestTemplate extends RestTemplate {
 
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,
             final List<HttpMessageConverter<?>> messageConverters) {
-        this(accessTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory());
-        this.setMessageConverters(messageConverters);
+        this(accessTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory(), messageConverters);
     }
 
     public StupsOAuth2RestTemplate(final AccessTokenProvider accessTokenProvider,

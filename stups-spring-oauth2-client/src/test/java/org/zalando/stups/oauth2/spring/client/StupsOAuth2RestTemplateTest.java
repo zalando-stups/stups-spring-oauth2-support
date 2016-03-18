@@ -31,12 +31,16 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 import org.springframework.test.web.client.MockRestServiceServer;
+
+import java.util.List;
 
 public class StupsOAuth2RestTemplateTest {
 
@@ -66,5 +70,22 @@ public class StupsOAuth2RestTemplateTest {
         restTemplate.getForObject("/", String.class);
 
         mockServer.verify();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRestTemplateInitialisationWithIllegalArguments1(){
+        List<HttpMessageConverter<?>> messageConverterList = null;
+        new StupsOAuth2RestTemplate(null, messageConverterList);
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testRestTemplateInitialisationWithIllegalArguments2(){
+        ClientHttpRequestFactory requestFactory = null;
+        new StupsOAuth2RestTemplate(null, requestFactory);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRestTemplateInitialisationWithIllegalArguments3(){
+        new StupsOAuth2RestTemplate(null, null, null);
     }
 }
