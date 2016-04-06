@@ -1,13 +1,12 @@
 package org.zalando.stups.oauth2.spring.security.expression;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.provider.expression.OAuth2SecurityExpressionMethods;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
-import org.springframework.security.oauth2.provider.expression.OAuth2SecurityExpressionMethods;
 
 /**
  * 
@@ -25,7 +24,7 @@ public class ExtendedOAuth2SecurityExpressionMethods extends OAuth2SecurityExpre
     @Override
     public boolean throwOnError(boolean decision) {
         if (!decision && !missingRealms.isEmpty()) {
-            Throwable failure = new InsufficientScopeException("Insufficient realms for this resource", missingRealms);
+            Throwable failure = new InsufficientRealmException("Insufficient realms for this resource", missingRealms);
             throw new AccessDeniedException(failure.getMessage(), failure);
         }
         // do not forget to call super
