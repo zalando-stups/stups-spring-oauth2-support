@@ -15,6 +15,8 @@
  */
 package some.test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +24,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
@@ -59,13 +63,33 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
     @Test
     public void invokeSecuredServiceWhenTokenInfoReturns_401() {
         RestOperations restOperations = buildClient("401");
-        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+        try {
+            restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+        }catch(HttpClientErrorException e){
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @Test
     public void invokeSecuredServiceWhenTokenInfoReturns_400() {
         RestOperations restOperations = buildClient("400");
-        restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+        try {
+            restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+            Assertions.fail("was expecting an 401");
+        } catch (HttpClientErrorException e) {
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Test
+    public void invokeSecuredServiceWhenTokenInfoReturns_403() {
+        RestOperations restOperations = buildClient("403");
+        try {
+            restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
+            Assertions.fail("was expecting an 401");
+        } catch (HttpClientErrorException e) {
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
     }
 
 }
