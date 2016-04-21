@@ -6,7 +6,7 @@ import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARE
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -76,15 +76,36 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
     }
     //@formatter:on
 
+    /**
+     * Creates a {@link RestTemplate} instance with a default
+     * {@link TokenInfoResponseErrorHandler}.
+     * 
+     * @see TokenInfoResponseErrorHandler#getDefault()
+     */
     public static RestTemplate buildRestTemplate() {
         return buildRestTemplate(TokenInfoResponseErrorHandler.getDefault());
     }
 
-    public static RestTemplate buildRestTemplate(List<HttpStatus> statusList) {
-        return buildRestTemplate(new TokenInfoResponseErrorHandler(statusList));
+    /**
+     * Creates a {@link RestTemplate} instance with a
+     * {@link TokenInfoResponseErrorHandler} that will not do any
+     * {@link ResponseErrorHandler#handleError(org.springframework.http.client.ClientHttpResponse)}
+     * for the passed {@link HttpStatus}.
+     * 
+     * @param unhandledStatusSet
+     */
+    public static RestTemplate buildRestTemplate(EnumSet<HttpStatus> unhandledStatusSet) {
+        return buildRestTemplate(new TokenInfoResponseErrorHandler(unhandledStatusSet));
     }
 
+    /**
+     * Creates a {@link RestTemplate} instance with the specified
+     * {@link ResponseErrorHandler} set.
+     * 
+     * @param unhandledStatusSet
+     */
     public static RestTemplate buildRestTemplate(ResponseErrorHandler responseErrorHandler) {
+        Assert.notNull(responseErrorHandler, "'responseHandler' should never be null");
         final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
         restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;

@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.zalando.stups.oauth2.spring.server.TokenInfoResponseErrorHandler.getDefault;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.EnumSet;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,21 +17,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.google.common.collect.Lists;
-
 public class TokenInfoResponseErrorHandlerTest {
 
     @Test
     public void create() {
-        List<HttpStatus> httpStatusList = Lists.newArrayList();
-        TokenInfoResponseErrorHandler responseHandler = new TokenInfoResponseErrorHandler(httpStatusList);
+        TokenInfoResponseErrorHandler responseHandler = new TokenInfoResponseErrorHandler(
+                EnumSet.noneOf(HttpStatus.class));
         assertThat(responseHandler).isNotNull();
     }
 
     @Test
     public void createDefault() {
         TokenInfoResponseErrorHandler responseHandler = getDefault();
-        assertThat(responseHandler.getStatusList()).contains(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN);
+        assertThat(responseHandler.getUnhandledStatusSet()).contains(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN);
     }
 
     @Test

@@ -5,37 +5,53 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.EnumSet;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.Assert;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResponseErrorHandler;
 
 class TokenInfoResponseErrorHandler extends DefaultResponseErrorHandler {
 
-    private final List<HttpStatus> statusList;
+    private final EnumSet<HttpStatus> unhandledStatusSet;
 
-    TokenInfoResponseErrorHandler(List<HttpStatus> statusList) {
-        Assert.notNull(statusList, "'statusList' should never be null");
-        this.statusList = Collections.unmodifiableList(statusList);
+    TokenInfoResponseErrorHandler(EnumSet<HttpStatus> unhandledStatusSet) {
+        Assert.notNull(unhandledStatusSet, "'statusList' should never be null");
+        this.unhandledStatusSet = unhandledStatusSet;
     }
 
+    /**
+     * Delegates only to {@link DefaultResponseErrorHandler} when
+     * {@link HttpStatus} of {@link ClientHttpResponse} is not in
+     * 'unhandledStatusSet'.
+     * 
+     * @see #getDefault() for more details about which {@link HttpStatus} will
+     *      be not handled by default
+     */
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        if (!statusList.contains(response.getStatusCode())) {
+        if (!unhandledStatusSet.contains(response.getStatusCode())) {
             super.handleError(response);
         }
     }
 
+    /**
+     * Creates an instance of {@link TokenInfoResponseErrorHandler} with
+     * prepared set of {@link HttpStatus}-codes not handled by this
+     * {@link ResponseErrorHandler}.<br/>
+     * Not handled by default are {@link HttpStatus#BAD_REQUEST},
+     * {@link HttpStatus#UNAUTHORIZED} and {@link HttpStatus#FORBIDDEN}
+     * 
+     * @return
+     */
     static TokenInfoResponseErrorHandler getDefault() {
         return new TokenInfoResponseErrorHandler(
-                Arrays.asList(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN));
+                EnumSet.of(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN));
     }
 
-    protected List<HttpStatus> getStatusList() {
-        return statusList;
+    protected EnumSet<HttpStatus> getUnhandledStatusSet() {
+        return unhandledStatusSet;
     }
 }
