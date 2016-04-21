@@ -1,5 +1,11 @@
 package org.zalando.stups.oauth2.spring.server;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.zalando.stups.oauth2.spring.server.DefaultTokenInfoRequestExecutor.buildRestTemplate;
+
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
@@ -55,6 +61,12 @@ public class DefaultTokenInfoRequestExecutorTest {
         TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(), executor);
         
         service.loadAuthentication("7364532");
+    }
+
+    @Test
+    public void createRestTemplateWithEnumSet() {
+        RestTemplate restTemplate = buildRestTemplate(EnumSet.of(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN));
+        Assertions.assertThat(restTemplate).isNotNull();
     }
 
 }
