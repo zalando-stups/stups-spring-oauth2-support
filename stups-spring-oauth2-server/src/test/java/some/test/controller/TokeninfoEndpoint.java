@@ -21,6 +21,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,7 +53,7 @@ public class TokeninfoEndpoint {
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/tokeninfo", params = { "!access_token" })
     @ResponseBody
-    public Map<String, Object> fakeTheResponseWithoutParam(WebRequest webRequest) {
+    public ResponseEntity<Map<String, Object>> fakeTheResponseWithoutParam(WebRequest webRequest) {
         logger.warn("------- FAKE_TOKENINFO -------");
         String accessTokenParameter = webRequest.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length());
         logger.warn("access_token : {}", accessTokenParameter);
@@ -83,17 +85,26 @@ public class TokeninfoEndpoint {
         } else if (accessTokenParameter.contains("noRealm")) {
             result = buildAccessToken(accessTokenParameter);
             result.remove("realm");
+        } else if (accessTokenParameter.contains("401")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(buildErrorResult("UNAUTHORIZED BY TOKENINFO"));
+        } else if (accessTokenParameter.contains("403")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(buildErrorResult("FORBIDDEN BY TOKENINFO"));
+        } else if (accessTokenParameter.contains("400")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildErrorResult("BAD_REQUEST BY TOKENINFO"));
         } else {
             result = buildAccessToken(accessTokenParameter);
         }
 
-        return result;
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     protected Map<String, Object> buildErrorResult() {
-        Map<String, Object> result = Maps.newHashMap();
-        result.put("error", "ErrorMessage");
+        return buildErrorResult("ErrorMessage");
+    }
 
+    protected Map<String, Object> buildErrorResult(String message) {
+        Map<String, Object> result = Maps.newHashMap();
+        result.put("error", message);
         return result;
     }
 

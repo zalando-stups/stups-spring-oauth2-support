@@ -6,14 +6,17 @@ import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARE
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.Assert;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
@@ -74,8 +77,16 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
     //@formatter:on
 
     public static RestTemplate buildRestTemplate() {
+        return buildRestTemplate(TokenInfoResponseErrorHandler.getDefault());
+    }
+
+    public static RestTemplate buildRestTemplate(List<HttpStatus> statusList) {
+        return buildRestTemplate(new TokenInfoResponseErrorHandler(statusList));
+    }
+
+    public static RestTemplate buildRestTemplate(ResponseErrorHandler responseErrorHandler) {
         final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
-        restTemplate.setErrorHandler(new TokenInfoResponseErrorHandler());
+        restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;
     }
 }
