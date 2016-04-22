@@ -6,14 +6,17 @@ import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARE
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.Assert;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
@@ -73,9 +76,38 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
     }
     //@formatter:on
 
+    /**
+     * Creates a {@link RestTemplate} instance with a default
+     * {@link TokenInfoResponseErrorHandler}.
+     * 
+     * @see TokenInfoResponseErrorHandler#getDefault()
+     */
     public static RestTemplate buildRestTemplate() {
+        return buildRestTemplate(TokenInfoResponseErrorHandler.getDefault());
+    }
+
+    /**
+     * Creates a {@link RestTemplate} instance with a
+     * {@link TokenInfoResponseErrorHandler} that will not do any
+     * {@link ResponseErrorHandler#handleError(org.springframework.http.client.ClientHttpResponse)}
+     * for the passed {@link HttpStatus}.
+     * 
+     * @param unhandledStatusSet
+     */
+    public static RestTemplate buildRestTemplate(EnumSet<HttpStatus> unhandledStatusSet) {
+        return buildRestTemplate(new TokenInfoResponseErrorHandler(unhandledStatusSet));
+    }
+
+    /**
+     * Creates a {@link RestTemplate} instance with the specified
+     * {@link ResponseErrorHandler} set.
+     * 
+     * @param unhandledStatusSet
+     */
+    public static RestTemplate buildRestTemplate(ResponseErrorHandler responseErrorHandler) {
+        Assert.notNull(responseErrorHandler, "'responseHandler' should never be null");
         final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
-        restTemplate.setErrorHandler(new TokenInfoResponseErrorHandler());
+        restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;
     }
 }

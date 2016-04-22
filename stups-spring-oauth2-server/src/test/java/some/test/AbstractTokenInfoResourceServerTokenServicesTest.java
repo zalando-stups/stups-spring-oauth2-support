@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.security.oauth2.client.token.AccessTokenProvider;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
@@ -120,9 +120,13 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
 
     protected RestOperations buildClient(final String token) {
         final AccessTokenProvider mockTokenProvider = mock(AccessTokenProvider.class);
+
         when(mockTokenProvider.obtainAccessToken(any(OAuth2ProtectedResourceDetails.class),
                 any(AccessTokenRequest.class))).thenReturn(new DefaultOAuth2AccessToken(token));
-        return new StupsOAuth2RestTemplate(mockTokenProvider, ClientHttpRequestFactorySelector.getRequestFactory());
+
+        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactorySelector.getRequestFactory();
+
+        return new StupsOAuth2RestTemplate(mockTokenProvider, requestFactory);
     }
 
     protected String getBasePath() {
