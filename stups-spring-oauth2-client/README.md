@@ -1,7 +1,7 @@
 ## How to use this library
 
 This library provides a subclass of Spring's RestTemplate, which is capable of adding the OAuth2 Authorization bearer
-header to eahc request. The StupsOAuth2RestTemplate requires an AccessTokenProvider to obtain the current token.
+header to each request. The StupsOAuth2RestTemplate requires an AccessTokenProvider to obtain the current token.
 Here is an example how to wire everything together:
 
 ```java
