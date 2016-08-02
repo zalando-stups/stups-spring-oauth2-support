@@ -38,7 +38,15 @@ import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
  */
 public abstract class AbstractAuthenticationExtractor implements AuthenticationExtractor {
 
-    private static final String UID_SCOPE = "uid";
+    private static final String UID = "uid";
+
+    public static final String ACCESS_TOKEN = "access_token";
+
+    public static final String REALM = "realm";
+
+    public static final String EMPLOYEES = "/employees";
+
+    public static final String DEFAULT_ROLE = "ROLE_USER";
 
     private boolean throwExceptionOnEmptyUid = true;
 
@@ -67,10 +75,15 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
 
     protected List<GrantedAuthority> createAuthorityList(final Map<String, Object> map,
                                                          final UserRolesProvider userRolesProvider) {
-        String uid = (String) map.get("uid");
-        String accessToken = (String) map.get("access_token");
-        final List<String> userRoles = userRolesProvider.getUserRoles(uid, accessToken);
-        return AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()]));
+        String uid = (String) map.get(UID);
+        String accessToken = (String) map.get(ACCESS_TOKEN);
+        String realm = (String) map.get(REALM);
+        if (EMPLOYEES.equals(realm)) {
+            final List<String> userRoles = userRolesProvider.getUserRoles(uid, accessToken);
+            return AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()]));
+        } else {
+            return AuthorityUtils.commaSeparatedStringToAuthorityList(DEFAULT_ROLE);
+        }
     }
 
     protected OAuth2Authentication buildOAuth2Authentication(final UsernamePasswordAuthenticationToken user,
@@ -85,10 +98,10 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
 
     protected Set<String> validateUidScope(final Set<String> scopes, final Map<String, Object> map) {
         Set<String> result = new HashSet<String>(scopes);
-        String uidValue = (String) map.get(UID_SCOPE);
+        String uidValue = (String) map.get(UID);
 
         if (StringUtils.hasText(uidValue)) {
-            result.add(UID_SCOPE);
+            result.add(UID);
         } else {
             if (isThrowExceptionOnEmptyUid()) {
                 throw new InvalidTokenException("'uid' in accessToken should never be empty!");
@@ -119,7 +132,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     protected String[] getPossibleUserIdKeys() {
 
         // we only use 'uid' at the moment for userids
-        return new String[] { UID_SCOPE };
+        return new String[] {UID};
 
         // return new String[] {"uid", "user", "username", "userid", "user_id",
         // "login", "id", "name"};
