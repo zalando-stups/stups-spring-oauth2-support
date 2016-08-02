@@ -1,34 +1,40 @@
 package org.zalando.stups.oauth2.spring.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.when;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.zalando.stups.oauth2.spring.server.TokenInfoResponseErrorHandler.getDefault;
+
+import static org.zalando.stups.oauth2.spring.server.TokenResponseErrorHandler.getDefault;
 
 import java.io.IOException;
+
 import java.util.EnumSet;
 
 import org.junit.Test;
+
 import org.mockito.Mockito;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
+
 import org.springframework.web.client.HttpClientErrorException;
 
-public class TokenInfoResponseErrorHandlerTest {
+public class TokenResponseErrorHandlerTest {
 
     @Test
     public void create() {
-        TokenInfoResponseErrorHandler responseHandler = new TokenInfoResponseErrorHandler(
-                EnumSet.noneOf(HttpStatus.class));
+        TokenResponseErrorHandler responseHandler = new TokenResponseErrorHandler(EnumSet.noneOf(HttpStatus.class));
         assertThat(responseHandler).isNotNull();
     }
 
     @Test
     public void createDefault() {
-        TokenInfoResponseErrorHandler responseHandler = getDefault();
+        TokenResponseErrorHandler responseHandler = getDefault();
         assertThat(responseHandler.getUnhandledStatusSet()).contains(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN);
     }
 
@@ -52,9 +58,10 @@ public class TokenInfoResponseErrorHandlerTest {
         getDefault().handleError(mockResponseWithStatus(HttpStatus.METHOD_NOT_ALLOWED));
     }
 
-    protected ClientHttpResponse mockResponseWithStatus(HttpStatus status) throws IOException {
+    protected ClientHttpResponse mockResponseWithStatus(final HttpStatus status) throws IOException {
         ClientHttpResponse response = Mockito.mock(ClientHttpResponse.class);
         when(response.getStatusCode()).thenReturn(status);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "text/xml");
         when(response.getHeaders()).thenReturn(headers);

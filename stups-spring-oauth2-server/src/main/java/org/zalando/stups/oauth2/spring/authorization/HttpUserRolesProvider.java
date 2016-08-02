@@ -15,6 +15,8 @@ import org.springframework.http.HttpMethod;
 
 import org.springframework.web.client.RestTemplate;
 
+import org.zalando.stups.oauth2.spring.server.TokenResponseErrorHandler;
+
 public class HttpUserRolesProvider implements UserRolesProvider {
 
     private final String roleInfoUri;
@@ -23,7 +25,7 @@ public class HttpUserRolesProvider implements UserRolesProvider {
 
     private static final String ROLE_SEPARATOR = "_";
 
-    RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate = buildRestTemplate();
 
     public HttpUserRolesProvider(final String roleInfoUri, final String rolePrefix) {
         this.roleInfoUri = roleInfoUri;
@@ -58,4 +60,11 @@ public class HttpUserRolesProvider implements UserRolesProvider {
         headers.set(AUTHORIZATION, BEARER_TYPE + " " + accessToken);
         return new HttpEntity<>(headers);
     }
+
+    private RestTemplate buildRestTemplate() {
+        final RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(TokenResponseErrorHandler.getDefault());
+        return restTemplate;
+    }
+
 }
