@@ -30,6 +30,10 @@ public class HttpUserRolesProvider implements UserRolesProvider {
         this.rolePrefix = rolePrefix;
     }
 
+    public HttpUserRolesProvider(final String roleInfoUri) {
+        this(roleInfoUri, null);
+    }
+
     @Override
     public List<String> getUserRoles(final String uid, final String accessToken) {
         final HttpEntity<String> entity = getHttpEntity(accessToken);
@@ -39,7 +43,11 @@ public class HttpUserRolesProvider implements UserRolesProvider {
                                                 .getBody();
         final List<String> rolesList = new ArrayList<>();
         for (final Role role : roleList) {
-            rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
+            if (rolePrefix != null) {
+                rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
+            } else {
+                rolesList.add(role.getName());
+            }
         }
 
         return rolesList;
