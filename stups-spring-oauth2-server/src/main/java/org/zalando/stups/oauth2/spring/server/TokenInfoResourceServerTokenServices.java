@@ -36,12 +36,14 @@ import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 
 /**
- * This component is used to create an {@link OAuth2Authentication}. Under the hood it takes the 'access_token' from the
- * client-request (done by {@link BearerTokenExtractor} ) and retrieves additional information from the installed
- * 'tokeninfo'-endpoint (https://sec.yourcompany.it/tokeninfo).<br/>
- * Afterwards it extracts 'scope' information and injects these into {@link OAuth2Authentication} object.
+ * This component is used to create an {@link OAuth2Authentication}. Under the
+ * hood it takes the 'access_token' from the client-request (done by
+ * {@link BearerTokenExtractor} ) and retrieves additional information from the
+ * installed 'tokeninfo'-endpoint (https://sec.yourcompany.it/tokeninfo).<br/>
+ * Afterwards it extracts 'scope' information and injects these into
+ * {@link OAuth2Authentication} object.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public class TokenInfoResourceServerTokenServices implements ResourceServerTokenServices {
 
@@ -93,6 +95,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         Assert.notNull(tokenInfoRequestExecutor, "'tokenInfoRequestExecutor' should never be null");
         Assert.hasText(clientId, "ClientId should never be null or empty");
         Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
+        Assert.notNull(userRolesProvider, "UserRolesProvider should never be null");
 
         this.tokenInfoRequestExecutor = tokenInfoRequestExecutor;
         this.userRolesProvider = userRolesProvider;
@@ -101,8 +104,8 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     }
 
     @Override
-    public OAuth2Authentication loadAuthentication(final String accessToken) throws AuthenticationException,
-        InvalidTokenException {
+    public OAuth2Authentication loadAuthentication(final String accessToken)
+            throws AuthenticationException, InvalidTokenException {
 
         if (!StringUtils.hasText(accessToken)) {
             throw new InvalidTokenException("'accessToken' should never be null or empty");

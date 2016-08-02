@@ -54,7 +54,9 @@ public class HttpUserRolesProviderTest extends TestCase {
     public void setUp() throws Exception {
         httpUserRolesProvider = new HttpUserRolesProvider(ROLE_INFO_URL, ROLE_PREFIX);
         httpUserRolesProvider.restTemplate = restTemplate;
-        usersGroups = new GroupListBuilder().append("dn1", "name1").append("dn2", "name2").append("dn3", "name3")
+        usersGroups = new GroupListBuilder().append("dn1", "name1")
+                                            .append("dn2", "name2")
+                                            .append("dn3", "name3")
                                             .build();
         responseEntity = new ResponseEntity<>(usersGroups, HttpStatus.OK);
     }

@@ -28,7 +28,6 @@ import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
  */
 public interface AuthenticationExtractor {
 
-    OAuth2Authentication extractAuthentication(Map<String, Object> map, String clientId,
-            UserRolesProvider userRolesProvider);
+    OAuth2Authentication extractAuthentication(Map<String, Object> map, String clientId, UserRolesProvider userRolesProvider);
 
 }

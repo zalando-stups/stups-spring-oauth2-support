@@ -34,7 +34,7 @@ import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 /**
  * Common code for current {@link AuthenticationExtractor}-implementations.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public abstract class AbstractAuthenticationExtractor implements AuthenticationExtractor {
 
@@ -44,7 +44,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
 
     @Override
     public OAuth2Authentication extractAuthentication(final Map<String, Object> tokenInfoMap, final String clientId,
-            final UserRolesProvider userRolesProvider) {
+                                                      final UserRolesProvider userRolesProvider) {
         UsernamePasswordAuthenticationToken user = createAuthenticationToken(tokenInfoMap, userRolesProvider);
 
         // at the moment there is other way
@@ -54,7 +54,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected UsernamePasswordAuthenticationToken createAuthenticationToken(final Map<String, Object> tokenInfoMap,
-            final UserRolesProvider userRolesProvider) {
+                                                                            final UserRolesProvider userRolesProvider) {
         List<GrantedAuthority> authorities = createAuthorityList(tokenInfoMap, userRolesProvider);
 
         UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(getPrincipal(tokenInfoMap),
@@ -66,7 +66,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected List<GrantedAuthority> createAuthorityList(final Map<String, Object> map,
-            final UserRolesProvider userRolesProvider) {
+                                                         final UserRolesProvider userRolesProvider) {
         String uid = (String) map.get("uid");
         String accessToken = (String) map.get("access_token");
         final List<String> userRoles = userRolesProvider.getUserRoles(uid, accessToken);
@@ -74,7 +74,8 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected OAuth2Authentication buildOAuth2Authentication(final UsernamePasswordAuthenticationToken user,
-            final Set<String> scopes, final String clientId) {
+                                                             final Set<String> scopes,
+                                                             final String clientId) {
 
         OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
         return new OAuth2Authentication(request, user);
@@ -110,14 +111,15 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     /**
-     * There is not standardized name for the 'userId' in the 'TokenInfo'-Object.
+     * There is not standardized name for the 'userId' in the
+     * 'TokenInfo'-Object.
      *
      * @return
      */
     protected String[] getPossibleUserIdKeys() {
 
         // we only use 'uid' at the moment for userids
-        return new String[] {UID_SCOPE};
+        return new String[] { UID_SCOPE };
 
         // return new String[] {"uid", "user", "username", "userid", "user_id",
         // "login", "id", "name"};

@@ -16,20 +16,15 @@
 package org.zalando.stups.oauth2.spring.server;
 
 import java.net.URI;
-
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-
 import org.junit.Test;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-
 import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 
 /**
@@ -74,7 +69,7 @@ public class TokenInfoResourceServerTokenServicesTest {
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullRestTemplate() {
         new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new LaxAuthenticationExtractor(),
-            new DefaultUserRolesProvider(), null);
+                new DefaultUserRolesProvider(), null);
     }
 
     @Test
@@ -89,7 +84,6 @@ public class TokenInfoResourceServerTokenServicesTest {
         Assertions.assertThat(entity.getUrl()).isEqualTo(URI.create(TOKENINFO_URL));
 
         Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.AUTHORIZATION);
-
         List<String> authorizationHeader = entity.getHeaders().get(HttpHeaders.AUTHORIZATION);
         Assertions.assertThat(authorizationHeader).containsExactly("Bearer 0123456789");
 
