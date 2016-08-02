@@ -2,7 +2,7 @@ package org.zalando.stups.oauth2.spring.authorization;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class Group {
+public class Role {
 
     @JsonProperty(value = "dn")
     private String dn;

@@ -46,25 +46,25 @@ public class HttpUserRolesProviderTest extends TestCase {
 
     private HttpUserRolesProvider httpUserRolesProvider;
 
-    private List<Group> usersGroups;
+    private List<Role> usersRoles;
 
-    private ResponseEntity<List<Group>> responseEntity;
+    private ResponseEntity<List<Role>> responseEntity;
 
     @Before
     public void setUp() throws Exception {
         httpUserRolesProvider = new HttpUserRolesProvider(ROLE_INFO_URL, ROLE_PREFIX);
         httpUserRolesProvider.restTemplate = restTemplate;
-        usersGroups = new GroupListBuilder().append("dn1", "name1")
+        usersRoles = new RoleListBuilder().append("dn1", "name1")
                                             .append("dn2", "name2")
                                             .append("dn3", "name3")
                                             .build();
-        responseEntity = new ResponseEntity<>(usersGroups, HttpStatus.OK);
+        responseEntity = new ResponseEntity<>(usersRoles, HttpStatus.OK);
     }
 
     @Test
     public void testGetUserRoles() throws Exception {
         when(restTemplate.exchange(eq("ROLES_INFO_URL"), eq(HttpMethod.GET), Matchers.<HttpEntity<String>>any(),
-                Matchers.<ParameterizedTypeReference<List<Group>>>any(), eq(USER_UID))).thenReturn(responseEntity);
+                Matchers.<ParameterizedTypeReference<List<Role>>>any(), eq(USER_UID))).thenReturn(responseEntity);
 
         List<String> userGroupsResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
 
@@ -74,7 +74,7 @@ public class HttpUserRolesProviderTest extends TestCase {
     }
 
     private boolean hasUserRole(final String role) {
-        for (Group group : usersGroups) {
+        for (Role group : usersRoles) {
             if (role.equals(ROLE_PREFIX + "_" + group.getName())) {
                 return true;
             }
@@ -83,20 +83,20 @@ public class HttpUserRolesProviderTest extends TestCase {
         return false;
     }
 
-    public static class GroupListBuilder {
+    public static class RoleListBuilder {
 
-        private List<Group> groups = new ArrayList<>();
+        private List<Role> roles = new ArrayList<>();
 
-        public GroupListBuilder append(final String dn, final String name) {
-            Group group = new Group();
-            group.setDn(dn);
-            group.setName(name);
-            groups.add(group);
+        public RoleListBuilder append(final String dn, final String name) {
+            Role role = new Role();
+            role.setDn(dn);
+            role.setName(name);
+            roles.add(role);
             return this;
         }
 
-        public List<Group> build() {
-            return groups;
+        public List<Role> build() {
+            return roles;
         }
 
     }

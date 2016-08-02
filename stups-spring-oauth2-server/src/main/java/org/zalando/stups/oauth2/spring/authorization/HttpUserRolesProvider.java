@@ -33,12 +33,12 @@ public class HttpUserRolesProvider implements UserRolesProvider {
     @Override
     public List<String> getUserRoles(final String uid, final String accessToken) {
         HttpEntity<String> entity = getHttpEntity(accessToken);
-        ParameterizedTypeReference<List<Group>> responseType = new ParameterizedTypeReference<List<Group>>() { };
+        ParameterizedTypeReference<List<Role>> responseType = new ParameterizedTypeReference<List<Role>>() { };
 
-        List<Group> groupList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid).getBody();
+        List<Role> roleList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid).getBody();
         List<String> rolesList = new ArrayList<>();
-        for (Group group : groupList) {
-            rolesList.add(rolePrefix + ROLE_SEPARATOR + group.getName());
+        for (Role role : roleList) {
+            rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
         }
 
         return rolesList;
