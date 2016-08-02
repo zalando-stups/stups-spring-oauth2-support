@@ -15,9 +15,9 @@ import org.springframework.http.HttpMethod;
 
 import org.springframework.web.client.RestTemplate;
 
-public class ZackUserRolesProvider implements UserRolesProvider {
+public class HttpUserRolesProvider implements UserRolesProvider {
 
-    private final String groupsInfoUri;
+    private final String roleInfoUri;
 
     private final String rolePrefix;
 
@@ -25,8 +25,8 @@ public class ZackUserRolesProvider implements UserRolesProvider {
 
     RestTemplate restTemplate = new RestTemplate();
 
-    public ZackUserRolesProvider(final String groupsInfoUri, final String rolePrefix) {
-        this.groupsInfoUri = groupsInfoUri;
+    public HttpUserRolesProvider(final String roleInfoUri, final String rolePrefix) {
+        this.roleInfoUri = roleInfoUri;
         this.rolePrefix = rolePrefix;
     }
 
@@ -35,8 +35,7 @@ public class ZackUserRolesProvider implements UserRolesProvider {
         HttpEntity<String> entity = getHttpEntity(accessToken);
         ParameterizedTypeReference<List<Group>> responseType = new ParameterizedTypeReference<List<Group>>() { };
 
-        List<Group> groupList = restTemplate.exchange(groupsInfoUri, HttpMethod.GET, entity, responseType, uid)
-                                            .getBody();
+        List<Group> groupList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid).getBody();
         List<String> rolesList = new ArrayList<>();
         for (Group group : groupList) {
             rolesList.add(rolePrefix + ROLE_SEPARATOR + group.getName());
