@@ -34,7 +34,7 @@ import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 /**
  * Common code for current {@link AuthenticationExtractor}-implementations.
  *
- * @author jbellmann
+ * @author  jbellmann
  */
 public abstract class AbstractAuthenticationExtractor implements AuthenticationExtractor {
 
@@ -52,17 +52,17 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
 
     @Override
     public OAuth2Authentication extractAuthentication(final Map<String, Object> tokenInfoMap, final String clientId,
-                                                      final UserRolesProvider userRolesProvider) {
-        UsernamePasswordAuthenticationToken user = createAuthenticationToken(tokenInfoMap, userRolesProvider);
+            final UserRolesProvider userRolesProvider) {
+        final UsernamePasswordAuthenticationToken user = createAuthenticationToken(tokenInfoMap, userRolesProvider);
 
         // at the moment there is other way
-        Set<String> scopes = resolveScopes(tokenInfoMap);
+        final Set<String> scopes = resolveScopes(tokenInfoMap);
 
         return buildOAuth2Authentication(user, scopes, clientId);
     }
 
     protected UsernamePasswordAuthenticationToken createAuthenticationToken(final Map<String, Object> tokenInfoMap,
-                                                                            final UserRolesProvider userRolesProvider) {
+            final UserRolesProvider userRolesProvider) {
         List<GrantedAuthority> authorities = createAuthorityList(tokenInfoMap, userRolesProvider);
 
         UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(getPrincipal(tokenInfoMap),
@@ -74,10 +74,10 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected List<GrantedAuthority> createAuthorityList(final Map<String, Object> map,
-                                                         final UserRolesProvider userRolesProvider) {
-        String uid = (String) map.get(UID);
-        String accessToken = (String) map.get(ACCESS_TOKEN);
-        String realm = (String) map.get(REALM);
+            final UserRolesProvider userRolesProvider) {
+        final String uid = (String) map.get(UID);
+        final String accessToken = (String) map.get(ACCESS_TOKEN);
+        final String realm = (String) map.get(REALM);
         if (EMPLOYEES.equals(realm)) {
             final List<String> userRoles = userRolesProvider.getUserRoles(uid, accessToken);
             return AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()]));
@@ -87,18 +87,17 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected OAuth2Authentication buildOAuth2Authentication(final UsernamePasswordAuthenticationToken user,
-                                                             final Set<String> scopes,
-                                                             final String clientId) {
+            final Set<String> scopes, final String clientId) {
 
-        OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
+        final OAuth2Request request = new OAuth2Request(null, clientId, null, true, scopes, null, null, null, null);
         return new OAuth2Authentication(request, user);
     }
 
     protected abstract Set<String> resolveScopes(Map<String, Object> map);
 
     protected Set<String> validateUidScope(final Set<String> scopes, final Map<String, Object> map) {
-        Set<String> result = new HashSet<String>(scopes);
-        String uidValue = (String) map.get(UID);
+        final Set<String> result = new HashSet<String>(scopes);
+        final String uidValue = (String) map.get(UID);
 
         if (StringUtils.hasText(uidValue)) {
             result.add(UID);
@@ -112,7 +111,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     protected Object getPrincipal(final Map<String, Object> map) {
-        for (String key : getPossibleUserIdKeys()) {
+        for (final String key : getPossibleUserIdKeys()) {
             if (map.containsKey(key)) {
                 return map.get(key);
             }
@@ -124,8 +123,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
     }
 
     /**
-     * There is not standardized name for the 'userId' in the
-     * 'TokenInfo'-Object.
+     * There is not standardized name for the 'userId' in the 'TokenInfo'-Object.
      *
      * @return
      */

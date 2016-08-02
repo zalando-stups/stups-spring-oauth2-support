@@ -54,10 +54,7 @@ public class HttpUserRolesProviderTest extends TestCase {
     public void setUp() throws Exception {
         httpUserRolesProvider = new HttpUserRolesProvider(ROLE_INFO_URL, ROLE_PREFIX);
         httpUserRolesProvider.restTemplate = restTemplate;
-        usersRoles = new RoleListBuilder().append("dn1", "name1")
-                                            .append("dn2", "name2")
-                                            .append("dn3", "name3")
-                                            .build();
+        usersRoles = new RoleListBuilder().append("dn1", "name1").append("dn2", "name2").append("dn3", "name3").build();
         responseEntity = new ResponseEntity<>(usersRoles, HttpStatus.OK);
     }
 
@@ -66,16 +63,41 @@ public class HttpUserRolesProviderTest extends TestCase {
         when(restTemplate.exchange(eq("ROLES_INFO_URL"), eq(HttpMethod.GET), Matchers.<HttpEntity<String>>any(),
                 Matchers.<ParameterizedTypeReference<List<Role>>>any(), eq(USER_UID))).thenReturn(responseEntity);
 
-        List<String> userGroupsResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
+        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
 
-        for (String groupName : userGroupsResponse) {
-            assertThat(hasUserRole(groupName), is(true));
+        for (String roleName : userRolesResponse) {
+            assertThat(hasUserRole(roleName), is(true));
+        }
+    }
+
+    @Test
+    public void testGetUserRolesWithoutPrefix() throws Exception {
+        httpUserRolesProvider = new HttpUserRolesProvider(ROLE_INFO_URL);
+        httpUserRolesProvider.restTemplate = restTemplate;
+
+        when(restTemplate.exchange(eq("ROLES_INFO_URL"), eq(HttpMethod.GET), Matchers.<HttpEntity<String>>any(),
+                Matchers.<ParameterizedTypeReference<List<Role>>>any(), eq(USER_UID))).thenReturn(responseEntity);
+
+        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
+
+        for (String roleName : userRolesResponse) {
+            assertThat(hasUserRoleWithoutPrefix(roleName), is(true));
         }
     }
 
     private boolean hasUserRole(final String role) {
         for (Role group : usersRoles) {
             if (role.equals(ROLE_PREFIX + "_" + group.getName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasUserRoleWithoutPrefix(final String role) {
+        for (Role group : usersRoles) {
+            if (role.equals(group.getName())) {
                 return true;
             }
         }

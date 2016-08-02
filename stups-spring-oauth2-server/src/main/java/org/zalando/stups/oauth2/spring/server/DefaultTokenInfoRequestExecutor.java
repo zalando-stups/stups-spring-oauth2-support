@@ -1,30 +1,35 @@
 package org.zalando.stups.oauth2.spring.server;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARER_TYPE;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+
 import java.util.EnumSet;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.core.ParameterizedTypeReference;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+
 import org.springframework.util.Assert;
+
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
 import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 /**
- * 
- * @author jbellmann
- *
+ * @author  jbellmann
  */
 public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor {
 
@@ -34,8 +39,8 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
 
     private final RestOperations restOperations;
 
-    private static final ParameterizedTypeReference<Map<String, Object>> TOKENINFO_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
-    };
+    private static final ParameterizedTypeReference<Map<String, Object>> TOKENINFO_MAP =
+        new ParameterizedTypeReference<Map<String, Object>>() { };
 
     private final URI tokenInfoEndpointUri;
 
@@ -43,7 +48,7 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
         this(tokenInfoEndpointUrl, buildRestTemplate());
     }
 
-    public DefaultTokenInfoRequestExecutor(final String tokenInfoEndpointUrl, RestOperations restOperations) {
+    public DefaultTokenInfoRequestExecutor(final String tokenInfoEndpointUrl, final RestOperations restOperations) {
         Assert.notNull(restOperations, "'restOperations' should never be null");
         Assert.hasText(tokenInfoEndpointUrl, "TokenInfoEndpointUrl should never be null or empty");
         try {
@@ -57,55 +62,52 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
     }
 
     @Override
-    public Map<String, Object> getMap(String accessToken) {
+    public Map<String, Object> getMap(final String accessToken) {
         return doGetMap(accessToken);
     }
 
     protected Map<String, Object> doGetMap(final String accessToken) {
         logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
+
         final RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
         return restOperations.exchange(entity, TOKENINFO_MAP).getBody();
     }
 
-    //@formatter:off
-    public static RequestEntity<Void> buildRequestEntity(URI tokenInfoEndpointUri, String accessToken) {
-        return RequestEntity.get(tokenInfoEndpointUri)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header(AUTHORIZATION, BEARER_TYPE + SPACE + accessToken)
-                            .build();
+    // @formatter:off
+    public static RequestEntity<Void> buildRequestEntity(final URI tokenInfoEndpointUri, final String accessToken) {
+        return RequestEntity.get(tokenInfoEndpointUri).accept(MediaType.APPLICATION_JSON)
+                            .header(AUTHORIZATION, BEARER_TYPE + SPACE + accessToken).build();
     }
-    //@formatter:on
+    // @formatter:on
 
     /**
-     * Creates a {@link RestTemplate} instance with a default
-     * {@link TokenInfoResponseErrorHandler}.
-     * 
-     * @see TokenInfoResponseErrorHandler#getDefault()
+     * Creates a {@link RestTemplate} instance with a default {@link TokenResponseErrorHandler}.
+     *
+     * @see  TokenResponseErrorHandler#getDefault()
      */
     public static RestTemplate buildRestTemplate() {
-        return buildRestTemplate(TokenInfoResponseErrorHandler.getDefault());
+        return buildRestTemplate(TokenResponseErrorHandler.getDefault());
     }
 
     /**
-     * Creates a {@link RestTemplate} instance with a
-     * {@link TokenInfoResponseErrorHandler} that will not do any
-     * {@link ResponseErrorHandler#handleError(org.springframework.http.client.ClientHttpResponse)}
-     * for the passed {@link HttpStatus}.
-     * 
-     * @param unhandledStatusSet
+     * Creates a {@link RestTemplate} instance with a {@link TokenResponseErrorHandler} that will not do any
+     * {@link ResponseErrorHandler#handleError(org.springframework.http.client.ClientHttpResponse)} for the passed
+     * {@link HttpStatus}.
+     *
+     * @param  unhandledStatusSet
      */
-    public static RestTemplate buildRestTemplate(EnumSet<HttpStatus> unhandledStatusSet) {
-        return buildRestTemplate(new TokenInfoResponseErrorHandler(unhandledStatusSet));
+    public static RestTemplate buildRestTemplate(final EnumSet<HttpStatus> unhandledStatusSet) {
+        return buildRestTemplate(new TokenResponseErrorHandler(unhandledStatusSet));
     }
 
     /**
-     * Creates a {@link RestTemplate} instance with the specified
-     * {@link ResponseErrorHandler} set.
-     * 
-     * @param unhandledStatusSet
+     * Creates a {@link RestTemplate} instance with the specified {@link ResponseErrorHandler} set.
+     *
+     * @param  unhandledStatusSet
      */
-    public static RestTemplate buildRestTemplate(ResponseErrorHandler responseErrorHandler) {
+    public static RestTemplate buildRestTemplate(final ResponseErrorHandler responseErrorHandler) {
         Assert.notNull(responseErrorHandler, "'responseHandler' should never be null");
+
         final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
         restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;
