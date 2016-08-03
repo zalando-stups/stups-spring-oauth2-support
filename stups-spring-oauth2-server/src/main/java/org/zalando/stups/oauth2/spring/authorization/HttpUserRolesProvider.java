@@ -13,6 +13,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
+import org.springframework.util.Assert;
+
 import org.springframework.web.client.RestTemplate;
 
 import org.zalando.stups.oauth2.spring.server.TokenResponseErrorHandler;
@@ -28,6 +30,8 @@ public class HttpUserRolesProvider implements UserRolesProvider {
     RestTemplate restTemplate = buildRestTemplate();
 
     public HttpUserRolesProvider(final String roleInfoUri, final String rolePrefix) {
+        Assert.hasText(roleInfoUri, "roleInfoUri should never be null or empty");
+
         this.roleInfoUri = roleInfoUri;
         this.rolePrefix = rolePrefix;
     }
@@ -38,6 +42,10 @@ public class HttpUserRolesProvider implements UserRolesProvider {
 
     @Override
     public List<String> getUserRoles(final String uid, final String accessToken) {
+
+        Assert.hasText(uid, "uid should never be null or empty");
+        Assert.hasText(uid, "accessToken should never be null or empty");
+
         final HttpEntity<String> entity = getHttpEntity(accessToken);
         final ParameterizedTypeReference<List<Role>> responseType = new ParameterizedTypeReference<List<Role>>() { };
 
