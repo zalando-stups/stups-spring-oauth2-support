@@ -18,6 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import org.zalando.stups.oauth2.spring.server.TokenResponseErrorHandler;
+import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
 
 public class HttpUserRolesProvider implements UserRolesProvider {
 
@@ -70,7 +71,7 @@ public class HttpUserRolesProvider implements UserRolesProvider {
     }
 
     private RestTemplate buildRestTemplate() {
-        final RestTemplate restTemplate = new RestTemplate();
+        final RestTemplate restTemplate = new RestTemplate(ClientHttpRequestFactorySelector.getRequestFactory());
         restTemplate.setErrorHandler(TokenResponseErrorHandler.getDefault());
         return restTemplate;
     }
