@@ -5,7 +5,11 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.BEARER_TYPE;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -30,6 +34,8 @@ public class HttpUserRolesProvider implements UserRolesProvider {
 
     RestTemplate restTemplate = buildRestTemplate();
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public HttpUserRolesProvider(final String roleInfoUri, final String rolePrefix) {
         Assert.hasText(roleInfoUri, "roleInfoUri should never be null or empty");
 
@@ -53,6 +59,12 @@ public class HttpUserRolesProvider implements UserRolesProvider {
         final List<Role> roleList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid)
                                                 .getBody();
         final List<String> rolesList = new ArrayList<>();
+
+        if (roleList == null) {
+            logger.warn("No roles can be extracted for uid ({}) !", uid);
+            return Collections.emptyList();
+        }
+
         for (final Role role : roleList) {
             if (rolePrefix != null) {
                 rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
