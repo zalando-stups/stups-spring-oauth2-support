@@ -44,9 +44,7 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
 
     public static final String REALM = "realm";
 
-    public static final String EMPLOYEES = "/employees";
 
-    public static final String DEFAULT_ROLE = "ROLE_USER";
 
     private boolean throwExceptionOnEmptyUid = true;
 
@@ -78,12 +76,8 @@ public abstract class AbstractAuthenticationExtractor implements AuthenticationE
         final String uid = (String) map.get(UID);
         final String accessToken = (String) map.get(ACCESS_TOKEN);
         final String realm = (String) map.get(REALM);
-        if (EMPLOYEES.equals(realm)) {
-            final List<String> userRoles = userRolesProvider.getUserRoles(uid, accessToken);
-            return AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()]));
-        } else {
-            return AuthorityUtils.commaSeparatedStringToAuthorityList(DEFAULT_ROLE);
-        }
+        final List<String> userRoles = userRolesProvider.getUserRoles(uid, realm, accessToken);
+        return AuthorityUtils.createAuthorityList(userRoles.toArray(new String[userRoles.size()]));
     }
 
     protected OAuth2Authentication buildOAuth2Authentication(final UsernamePasswordAuthenticationToken user,

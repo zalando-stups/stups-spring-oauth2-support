@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface UserRolesProvider {
 
-    List<String> getUserRoles(String uid, String accessToken);
+    List<String> getUserRoles(String uid, String realm, String accessToken);
 
 }

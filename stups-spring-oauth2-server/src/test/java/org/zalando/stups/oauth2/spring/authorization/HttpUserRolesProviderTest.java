@@ -40,6 +40,7 @@ public class HttpUserRolesProviderTest extends TestCase {
     private static final String ROLE_PREFIX = "ROLE";
 
     private static final String ROLE_INFO_URL = "ROLES_INFO_URL";
+    public static final String EMPLOYEES = "/employees";
 
     @Mock
     private RestTemplate restTemplate;
@@ -63,7 +64,7 @@ public class HttpUserRolesProviderTest extends TestCase {
         when(restTemplate.exchange(eq("ROLES_INFO_URL"), eq(HttpMethod.GET), Matchers.<HttpEntity<String>>any(),
                 Matchers.<ParameterizedTypeReference<List<Role>>>any(), eq(USER_UID))).thenReturn(responseEntity);
 
-        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
+        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, EMPLOYEES, "access_token");
 
         for (String roleName : userRolesResponse) {
             assertThat(hasUserRole(roleName), is(true));
@@ -78,7 +79,7 @@ public class HttpUserRolesProviderTest extends TestCase {
         when(restTemplate.exchange(eq("ROLES_INFO_URL"), eq(HttpMethod.GET), Matchers.<HttpEntity<String>>any(),
                 Matchers.<ParameterizedTypeReference<List<Role>>>any(), eq(USER_UID))).thenReturn(responseEntity);
 
-        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, "access_token");
+        List<String> userRolesResponse = httpUserRolesProvider.getUserRoles(USER_UID, EMPLOYEES, "access_token");
 
         for (String roleName : userRolesResponse) {
             assertThat(hasUserRoleWithoutPrefix(roleName), is(true));

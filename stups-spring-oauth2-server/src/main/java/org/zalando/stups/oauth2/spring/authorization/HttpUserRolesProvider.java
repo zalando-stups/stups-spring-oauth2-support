@@ -32,6 +32,10 @@ public class HttpUserRolesProvider implements UserRolesProvider {
 
     private static final String ROLE_SEPARATOR = "_";
 
+    public static final String EMPLOYEES = "/employees";
+
+    public static final String DEFAULT_ROLE = "ROLE_USER";
+
     RestTemplate restTemplate = buildRestTemplate();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -48,29 +52,34 @@ public class HttpUserRolesProvider implements UserRolesProvider {
     }
 
     @Override
-    public List<String> getUserRoles(final String uid, final String accessToken) {
+    public List<String> getUserRoles(final String uid, final String realm, final String accessToken) {
 
         Assert.hasText(uid, "uid should never be null or empty");
         Assert.hasText(uid, "accessToken should never be null or empty");
-
-        final HttpEntity<String> entity = getHttpEntity(accessToken);
-        final ParameterizedTypeReference<List<Role>> responseType = new ParameterizedTypeReference<List<Role>>() { };
-
-        final List<Role> roleList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid)
-                                                .getBody();
         final List<String> rolesList = new ArrayList<>();
 
-        if (roleList == null) {
-            logger.warn("No roles can be extracted for uid ({}) !", uid);
-            return Collections.emptyList();
-        }
+        if (EMPLOYEES.equals(realm)) {
+            final HttpEntity<String> entity = getHttpEntity(accessToken);
+            final ParameterizedTypeReference<List<Role>> responseType = new ParameterizedTypeReference<List<Role>>() {
+            };
 
-        for (final Role role : roleList) {
-            if (rolePrefix != null) {
-                rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
-            } else {
-                rolesList.add(role.getName());
+            final List<Role> roleList = restTemplate.exchange(roleInfoUri, HttpMethod.GET, entity, responseType, uid)
+                    .getBody();
+
+            if (roleList == null) {
+                logger.warn("No roles can be extracted for uid ({}) !", uid);
+                return Collections.emptyList();
             }
+
+            for (final Role role : roleList) {
+                if (rolePrefix != null) {
+                    rolesList.add(rolePrefix + ROLE_SEPARATOR + role.getName());
+                } else {
+                    rolesList.add(role.getName());
+                }
+            }
+        } else {
+            rolesList.add(DEFAULT_ROLE);
         }
 
         return rolesList;

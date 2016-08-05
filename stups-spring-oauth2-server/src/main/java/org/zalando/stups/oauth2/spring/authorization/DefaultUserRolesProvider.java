@@ -6,7 +6,7 @@ import java.util.List;
 public class DefaultUserRolesProvider implements UserRolesProvider {
 
     @Override
-    public List<String> getUserRoles(final String uid, final String accessToken) {
+    public List<String> getUserRoles(final String uid, final String realm, final String accessToken) {
         return Arrays.asList("ROLE_USER");
     }
 
