@@ -25,6 +25,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 
 /**
  * @author  jbellmann
@@ -67,7 +68,8 @@ public class TokenInfoResourceServerTokenServicesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullRestTemplate() {
-        new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new LaxAuthenticationExtractor(), null);
+        new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new LaxAuthenticationExtractor(),
+                new DefaultUserRolesProvider(), null);
     }
 
     @Test
@@ -76,17 +78,17 @@ public class TokenInfoResourceServerTokenServicesTest {
         RequestEntity<Void> entity = DefaultTokenInfoRequestExecutor.buildRequestEntity(URI.create(TOKENINFO_URL),
                 "0123456789");
 
-    	Assertions.assertThat(entity).isNotNull();
-    	
-    	Assertions.assertThat(entity.getMethod()).isEqualTo(HttpMethod.GET);
-    	Assertions.assertThat(entity.getUrl()).isEqualTo(URI.create(TOKENINFO_URL));
-    	
-    	Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.AUTHORIZATION);
-    	List<String> authorizationHeader = entity.getHeaders().get(HttpHeaders.AUTHORIZATION);
-    	Assertions.assertThat(authorizationHeader).containsExactly("Bearer 0123456789");
-    	
-    	Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.ACCEPT);
-    	Assertions.assertThat(entity.getHeaders().getAccept()).contains(MediaType.APPLICATION_JSON);
+        Assertions.assertThat(entity).isNotNull();
+
+        Assertions.assertThat(entity.getMethod()).isEqualTo(HttpMethod.GET);
+        Assertions.assertThat(entity.getUrl()).isEqualTo(URI.create(TOKENINFO_URL));
+
+        Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.AUTHORIZATION);
+        List<String> authorizationHeader = entity.getHeaders().get(HttpHeaders.AUTHORIZATION);
+        Assertions.assertThat(authorizationHeader).containsExactly("Bearer 0123456789");
+
+        Assertions.assertThat(entity.getHeaders()).containsKey(HttpHeaders.ACCEPT);
+        Assertions.assertThat(entity.getHeaders().getAccept()).contains(MediaType.APPLICATION_JSON);
     }
 
     @Test(expected = InvalidTokenException.class)

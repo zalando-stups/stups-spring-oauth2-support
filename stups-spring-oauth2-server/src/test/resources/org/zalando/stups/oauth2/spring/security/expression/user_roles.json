@@ -1,0 +1,14 @@
+[
+  {
+    "dn": "cn=sample-app1,ou=posixgroups,dc=org,dc=net",
+    "name": "unit1/APP1/TestRole1"
+  },
+  {
+    "dn": "cn=sample-app2,ou=posixgroups,dc=org,dc=net",
+    "name": "unit2/APP2/TestRole2"
+  },
+  {
+    "dn": "cn=sample-app3,ou=posixgroups,dc=org,dc=net",
+    "name": "unit3/APP3/TestRole3"
+  }
+]

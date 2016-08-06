@@ -19,15 +19,21 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
 import org.springframework.web.client.RestTemplate;
+
+import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
+import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 
 /**
  * This component is used to create an {@link OAuth2Authentication}. Under the
@@ -51,38 +57,49 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
 
     private final TokenInfoRequestExecutor tokenInfoRequestExecutor;
 
+    private final UserRolesProvider userRolesProvider;
+
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
         this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
     }
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId) {
-        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor(),
-                DefaultTokenInfoRequestExecutor.buildRestTemplate());
+        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor(), new DefaultUserRolesProvider(),
+            DefaultTokenInfoRequestExecutor.buildRestTemplate());
+    }
+
+    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
+            final UserRolesProvider userRolesProvider) {
+        this(tokenInfoEndpointUrl, clientId, new DefaultAuthenticationExtractor(), userRolesProvider,
+            DefaultTokenInfoRequestExecutor.buildRestTemplate());
     }
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl,
             final AuthenticationExtractor authenticationExtractor) {
-        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor,
-                DefaultTokenInfoRequestExecutor.buildRestTemplate());
+        this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED, authenticationExtractor, new DefaultUserRolesProvider(),
+            DefaultTokenInfoRequestExecutor.buildRestTemplate());
     }
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final String clientId,
-            final AuthenticationExtractor authenticationExtractor, final RestTemplate restTemplate) {
+            final AuthenticationExtractor authenticationExtractor, final UserRolesProvider userRolesProvider,
+            final RestTemplate restTemplate) {
 
-        this(clientId, authenticationExtractor,
-                new DefaultTokenInfoRequestExecutor(tokenInfoEndpointUrl, restTemplate));
+        this(clientId, authenticationExtractor, userRolesProvider,
+            new DefaultTokenInfoRequestExecutor(tokenInfoEndpointUrl, restTemplate));
     }
 
     public TokenInfoResourceServerTokenServices(final String clientId,
-            final AuthenticationExtractor authenticationExtractor, TokenInfoRequestExecutor tokenInfoRequestExecutor) {
+            final AuthenticationExtractor authenticationExtractor, final UserRolesProvider userRolesProvider,
+            final TokenInfoRequestExecutor tokenInfoRequestExecutor) {
 
         Assert.notNull(tokenInfoRequestExecutor, "'tokenInfoRequestExecutor' should never be null");
         Assert.hasText(clientId, "ClientId should never be null or empty");
         Assert.notNull(authenticationExtractor, "AuthenticationExtractor should never be null");
+        Assert.notNull(userRolesProvider, "UserRolesProvider should never be null");
 
         this.tokenInfoRequestExecutor = tokenInfoRequestExecutor;
+        this.userRolesProvider = userRolesProvider;
         this.authenticationExtractor = authenticationExtractor;
-
         this.clientId = clientId;
     }
 
@@ -107,10 +124,11 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             if (!StringUtils.hasText(description)) {
                 description = (String) map.get("error");
             }
+
             throw new InvalidTokenException(description);
         }
 
-        return this.authenticationExtractor.extractAuthentication(map, clientId);
+        return this.authenticationExtractor.extractAuthentication(map, clientId, userRolesProvider);
     }
 
     public AuthenticationExtractor getAuthenticationExtractor() {

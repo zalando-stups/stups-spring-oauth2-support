@@ -18,10 +18,11 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
+import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 
 /**
  * #30, NPE while tokenInfoResponse (Map<String,Object>) is null.
- * 
+ *
  * @author jbellmann
  *
  */
@@ -58,8 +59,9 @@ public class DefaultTokenInfoRequestExecutorTest {
 
         DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://example.com/tokenInfo",
                 restOperations);
-        TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(), executor);
-        
+        TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(),
+                new DefaultUserRolesProvider(), executor);
+
         service.loadAuthentication("7364532");
     }
 

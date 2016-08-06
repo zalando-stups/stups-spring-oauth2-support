@@ -1,0 +1,13 @@
+{
+  "access_token": "123456789",
+  "cn": "Klaus Tester",
+  "expires_in": 3579,
+  "grant_type": "password",
+  "realm": "/employees",
+  "scope": [
+    "uid",
+    "cn"
+  ],
+  "token_type": "Bearer",
+  "uid": "ktester"
+}
