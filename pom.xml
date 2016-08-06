@@ -129,6 +129,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.10.3</version>
                     <configuration combine.self="override">
+                        <additionalparam>-Xdoclint:none</additionalparam>
                         <breakiterator>true</breakiterator>
                         <header>${project.name}</header>
                         <source>${source.level}</source>
