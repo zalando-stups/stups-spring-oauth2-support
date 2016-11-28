@@ -18,16 +18,19 @@ package org.zalando.stups.oauth2.spring.server;
 import java.util.Map;
 
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-
 import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 
 /**
- * To provide different strategies to extract information from the tokeninfo-endpoint.
+ * To provide different strategies to extract information from the
+ * tokeninfo-endpoint.
  *
- * @author  jbellmann
+ * @author jbellmann
  */
 public interface AuthenticationExtractor {
 
-    OAuth2Authentication extractAuthentication(Map<String, Object> map, String clientId, UserRolesProvider userRolesProvider);
+    OAuth2Authentication extractAuthentication(Map<String, Object> map, String clientId);
+
+    OAuth2Authentication extractAuthentication(Map<String, Object> map, String clientId,
+            UserRolesProvider userRolesProvider);
 
 }
