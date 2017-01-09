@@ -33,6 +33,8 @@
 		<spring-boot-zalando-stups-tokens.version>0.9.6</spring-boot-zalando-stups-tokens.version>
 		<kio-client-java-spring.version>0.9.4</kio-client-java-spring.version>
 
+        <spring-security.version>4.2.1.RELEASE</spring-security.version>
+        <spring-security-oauth2.version>2.0.12.RELEASE</spring-security-oauth2.version>
 		<java.source>1.7</java.source>
 		<java.target>1.7</java.target>
 
@@ -49,6 +51,27 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>${spring-security-oauth2.version}</version>
+            </dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
