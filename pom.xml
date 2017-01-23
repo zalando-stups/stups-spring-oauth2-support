@@ -38,6 +38,8 @@
 		<java.source>1.7</java.source>
 		<java.target>1.7</java.target>
 
+        <license.skip>false</license.skip>
+        <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 		<argLine />
 	</properties>
 

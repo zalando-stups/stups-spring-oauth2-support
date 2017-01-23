@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.zalando.stups.spring.http.client.ClientHttpRequestFactorySelector;
+package org.zalando.stups.oauth2.spring.authorization;
 
-public class HttpClientSelectorTest {
+import java.util.ArrayList;
+import java.util.List;
 
-	@Test
-	public void createClientHttpRequestFactory() {
-		ClientHttpRequestFactory factory = ClientHttpRequestFactorySelector.getRequestFactory();
-		Assert.assertTrue(factory instanceof HttpComponentsClientHttpRequestFactory);
-	}
+/**
+ * Returns an empty list of 'ROLE's.
+ * 
+ * @author jbellmann
+ *
+ */
+public class NoRolesUserRolesProvider implements UserRolesProvider {
+
+    @Override
+    public List<String> getUserRoles(String uid, String realm, String accessToken) {
+        return new ArrayList<String>(0);
+    }
 
 }
