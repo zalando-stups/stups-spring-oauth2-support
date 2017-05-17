@@ -104,8 +104,22 @@ public class StupsTokensAccessTokenProviderTest {
             verify(mockAccessTokens).getAccessToken(eq(TOKEN_ID));
         }
     }
-    
-    
+
+    @Test
+    public void testObtainAccessWithValidUntilNull() throws Exception {
+        when(mockAccessTokens.getAccessToken(anyString())).thenReturn(
+            new AccessToken("12345", "bearer", 3600, null));
+        final OAuth2AccessToken accessToken = accessTokenProvider.obtainAccessToken(
+            new BaseOAuth2ProtectedResourceDetails(), new DefaultAccessTokenRequest());
+
+        assertThat(accessToken).isNotNull();
+        assertThat(accessToken.getExpiresIn()).isEqualTo(0);
+        assertThat(accessToken.getExpiration()).isNull();
+        assertThat(accessToken.isExpired()).isFalse();
+
+        verify(mockAccessTokens).getAccessToken(eq(TOKEN_ID));
+    }
+
     // copy pasted from assertj-3.1.0
     public static Date tomorrow() {
         Calendar cal = Calendar.getInstance();
