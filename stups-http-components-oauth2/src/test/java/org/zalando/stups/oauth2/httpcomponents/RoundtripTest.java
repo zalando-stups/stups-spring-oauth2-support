@@ -23,33 +23,23 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
 import org.assertj.core.api.Assertions;
-
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
-
 import org.mockito.Mockito;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.zalando.stups.tokens.AccessTokens;
 
 /**
  * @author  jbellmann
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {ExampleApplication.class})
-@WebIntegrationTest(randomPort = true)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {ExampleApplication.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class RoundtripTest {
 
     private static final String SERVICE_ID = "kio";
