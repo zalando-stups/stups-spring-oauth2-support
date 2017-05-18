@@ -22,12 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
@@ -43,9 +43,8 @@ import some.test.controller.TokeninfoEndpoint;
  *
  * @author jbellmann
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { SampleApplication.class })
-@WebIntegrationTest(randomPort = false)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = { SampleApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 @DirtiesContext
 @ActiveProfiles({ "custom", "defaultAuthentication" })
 public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoResourceServerTokenServicesTest {
