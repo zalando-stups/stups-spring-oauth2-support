@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>org.zalando.stups</groupId>
 	<artifactId>stups-spring-oauth2-support</artifactId>
-	<version>1.0.19</version>
+	<version>1.0.20-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -170,7 +170,7 @@
 		<connection>scm:git:git@github.com:zalando-stups/stups-spring-oauth2-support.git</connection>
 		<developerConnection>scm:git:git@github.com:zalando-stups/stups-spring-oauth2-support.git</developerConnection>
 		<url>https://github.com/zalando-stups/stups-spring-oauth2-support</url>
-		<tag>1.0.19</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 </project>
