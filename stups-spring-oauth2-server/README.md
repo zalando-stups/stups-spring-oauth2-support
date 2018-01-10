@@ -1,4 +1,4 @@
-###Configure your ResourceServerTokenServices-Bean
+### Configure your ResourceServerTokenServices-Bean
 
 This library provides an implementation of ResourceServerTokenServices.
 
@@ -84,3 +84,32 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
 }
 ```
 
+Using your favourite Circuit breaker
+```
+    @Bean
+    public ResourceServerTokenServices customResourceTokenServices() {
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new HystrixTokenInfoRequestExecutor(tokenInfoUri));
+    }
+
+```
+
+or
+
+
+```
+    @Bean
+    public ResourceServerTokenServices customResourceTokenServices() {
+        CircuitBreaker breaker = new CircuitBreaker()
+          .withFailureThreshold(3, 10)
+          .withSuccessThreshold(5)
+          .withDelay(1, TimeUnit.MINUTES);
+
+        RetryPolicy retryPolicy = new RetryPolicy()
+          .retryOn(Exception.class, IOException.class)
+          .retryOn(failure -> failure instanceof ConnectException);
+
+
+        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new FailsafeTokenInfoRequestExecutor(tokenInfoUri,breaker,retryPolicy));
+    }
+
+```

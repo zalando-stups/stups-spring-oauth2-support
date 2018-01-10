@@ -34,7 +34,7 @@ For OAuth2 on the server use this one:
     </dependency>
 ```
 
-###Usage
+### Usage
 
 [Client:](https://github.com/zalando-stups/stups-spring-oauth2-support/tree/master/stups-spring-oauth2-client)
 
