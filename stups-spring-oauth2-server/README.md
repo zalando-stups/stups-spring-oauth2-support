@@ -84,11 +84,11 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
 }
 ```
 
-Using your favourite Circuit breaker
+Using your favourite Circuit breaker (Currently Hystrix and Failsafe are supported)
 ```
     @Bean
     public ResourceServerTokenServices customResourceTokenServices() {
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new HystrixTokenInfoRequestExecutor(tokenInfoUri));
+        return new TokenInfoResourceServerTokenServices(new HystrixTokenInfoRequestExecutor(tokenInfoUri));
     }
 
 ```
@@ -109,7 +109,7 @@ or
           .retryOn(failure -> failure instanceof ConnectException);
 
 
-        return new TokenInfoResourceServerTokenServices(tokenInfoUri, new FailsafeTokenInfoRequestExecutor(tokenInfoUri,breaker,retryPolicy));
+        return new TokenInfoResourceServerTokenServices(new FailsafeTokenInfoRequestExecutor(tokenInfoUri,breaker,retryPolicy));
     }
 
 ```

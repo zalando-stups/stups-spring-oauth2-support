@@ -15,10 +15,15 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import net.jodah.failsafe.CircuitBreaker;
+import net.jodah.failsafe.RetryPolicy;
 import org.assertj.core.api.Assertions;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -47,7 +52,8 @@ public class TokenInfoResourceServerTokenServicesTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void initializeWithNullUrl() {
-        new TokenInfoResourceServerTokenServices(null);
+        String tokenURL = null;
+        new TokenInfoResourceServerTokenServices(tokenURL);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -70,6 +76,27 @@ public class TokenInfoResourceServerTokenServicesTest {
     public void initializeWithNullRestTemplate() {
         new TokenInfoResourceServerTokenServices(TOKENINFO_URL, "ONLY_A_TEST", new LaxAuthenticationExtractor(),
                 new DefaultUserRolesProvider(), null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void initializeWithNullTokenInfoExecutor() {
+        TokenInfoRequestExecutor requestExecutor = null;
+        new TokenInfoResourceServerTokenServices(requestExecutor);
+    }
+
+    @Test
+    public void initializeWithNonNullTokenInfoExecutor() {
+        Assert.assertNotNull(new TokenInfoResourceServerTokenServices( new HystrixTokenInfoRequestExecutor(TOKENINFO_URL)));
+
+        CircuitBreaker breaker = new CircuitBreaker()
+                .withFailureThreshold(3, 10)
+                .withSuccessThreshold(5)
+                .withDelay(1, TimeUnit.MINUTES);
+
+        RetryPolicy retryPolicy = new RetryPolicy()
+                .retryOn(Exception.class, IOException.class);
+
+        Assert.assertNotNull(new TokenInfoResourceServerTokenServices( new FailsafeTokenInfoRequestExecutor(TOKENINFO_URL,breaker,retryPolicy)));
     }
 
     @Test

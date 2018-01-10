@@ -88,7 +88,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             new DefaultTokenInfoRequestExecutor(tokenInfoEndpointUrl, restTemplate));
     }
 
-    public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl, final TokenInfoRequestExecutor tokenInfoRequestExecutor) {
+    public TokenInfoResourceServerTokenServices(final TokenInfoRequestExecutor tokenInfoRequestExecutor) {
         this(CLIENT_ID_NOT_NEEDED, new DefaultAuthenticationExtractor(), new DefaultUserRolesProvider(),tokenInfoRequestExecutor);
     }
 
