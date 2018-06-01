@@ -33,25 +33,25 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 public class AccessTokenUtilsTest {
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
     @Test
-    public void testNonOAuth2Authentication() throws Exception {
+    public void testNonOAuth2Authentication() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("foo", "bar"));
         assertThat(getAccessTokenFromSecurityContext().isPresent()).isFalse();
     }
 
     @Test
-    public void testMissingUserDetails() throws Exception {
+    public void testMissingUserDetails() {
         SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(mock(OAuth2Request.class),
                 mock(Authentication.class)));
         assertThat(getAccessTokenFromSecurityContext().isPresent()).isFalse();
     }
 
     @Test
-    public void testUserDetailsIsNotAMap() throws Exception {
+    public void testUserDetailsIsNotAMap() {
         final Authentication userAuthentication = mock(Authentication.class);
         when(userAuthentication.getDetails()).thenReturn("123456789");
 
@@ -61,7 +61,7 @@ public class AccessTokenUtilsTest {
     }
 
     @Test
-    public void testGetToken() throws Exception {
+    public void testGetToken() {
         final Authentication userAuthentication = mock(Authentication.class);
         when(userAuthentication.getDetails()).thenReturn(singletonMap(ACCESS_TOKEN, "1234567890"));
 

@@ -25,7 +25,7 @@
 		<spring-boot.version>1.5.13.RELEASE</spring-boot.version>
 		<guava.version>25.1-jre</guava.version>
 		<assertj.version>3.1.0</assertj.version>
-		<mockito.version>1.10.19</mockito.version>
+		<mockito.version>2.18.3</mockito.version>
 		<json-path.version>2.4.0</json-path.version>
 
 		<stups-tokens.version>0.11.0</stups-tokens.version>
@@ -87,7 +87,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
-				<artifactId>mockito-all</artifactId>
+				<artifactId>mockito-core</artifactId>
 				<version>${mockito.version}</version>
 			</dependency>
 			<dependency>

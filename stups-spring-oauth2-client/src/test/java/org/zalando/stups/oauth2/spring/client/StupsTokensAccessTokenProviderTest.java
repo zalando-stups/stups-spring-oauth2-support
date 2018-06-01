@@ -17,9 +17,9 @@ package org.zalando.stups.oauth2.spring.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -48,19 +48,19 @@ public class StupsTokensAccessTokenProviderTest {
     private StupsTokensAccessTokenProvider accessTokenProvider;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mockAccessTokens = mock(AccessTokens.class);
 
         accessTokenProvider = new StupsTokensAccessTokenProvider(TOKEN_ID, mockAccessTokens);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(mockAccessTokens);
     }
 
     @Test
-    public void testObtainAccessToken() throws Exception {
+    public void testObtainAccessToken() {
         when(mockAccessTokens.getAccessToken(anyString())).thenReturn(
                 new AccessToken("12345", "bearer", 3600, tomorrow()));
         final OAuth2AccessToken accessToken = accessTokenProvider.obtainAccessToken(
@@ -75,7 +75,7 @@ public class StupsTokensAccessTokenProviderTest {
     }
 
     @Test
-    public void testObtainExpiredAccessToken() throws Exception {
+    public void testObtainExpiredAccessToken() {
         when(mockAccessTokens.getAccessToken(anyString())).thenReturn(
                 new AccessToken("12345", "bearer", 3600, yesterday()));
         final OAuth2AccessToken accessToken = accessTokenProvider.obtainAccessToken(
@@ -90,9 +90,9 @@ public class StupsTokensAccessTokenProviderTest {
     }
 
     @Test
-    public void testObtainAccessTokenException() throws Exception {
+    public void testObtainAccessTokenException() {
         final AccessTokenUnavailableException unavailableAccessToken = new AccessTokenUnavailableException();
-        when(mockAccessTokens.getAccessToken(anyObject())).thenThrow(unavailableAccessToken);
+        when(mockAccessTokens.getAccessToken(any())).thenThrow(unavailableAccessToken);
         try {
             accessTokenProvider.obtainAccessToken(
                     new BaseOAuth2ProtectedResourceDetails(),
@@ -106,7 +106,7 @@ public class StupsTokensAccessTokenProviderTest {
     }
 
     @Test
-    public void testObtainAccessWithValidUntilNull() throws Exception {
+    public void testObtainAccessWithValidUntilNull() {
         when(mockAccessTokens.getAccessToken(anyString())).thenReturn(
             new AccessToken("12345", "bearer", 3600, null));
         final OAuth2AccessToken accessToken = accessTokenProvider.obtainAccessToken(
@@ -126,7 +126,7 @@ public class StupsTokensAccessTokenProviderTest {
         cal.add(Calendar.DAY_OF_MONTH, 1);
         return cal.getTime();
       }
-    
+
     public static Date yesterday() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -1);

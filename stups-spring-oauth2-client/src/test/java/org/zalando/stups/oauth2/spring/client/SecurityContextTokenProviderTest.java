@@ -42,7 +42,7 @@ public class SecurityContextTokenProviderTest {
     private SecurityContextTokenProvider tokenProvider;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         tokenProvider = new SecurityContextTokenProvider();
 
         final Authentication userAuthentication = mock(Authentication.class);
@@ -52,12 +52,12 @@ public class SecurityContextTokenProviderTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
     @Test
-    public void testObtainAccessToken() throws Exception {
+    public void testObtainAccessToken() {
         final OAuth2AccessToken oAuth2AccessToken = tokenProvider.obtainAccessToken(mock(
                     OAuth2ProtectedResourceDetails.class), mock(AccessTokenRequest.class));
         assertThat(oAuth2AccessToken).isNotNull();
@@ -65,7 +65,7 @@ public class SecurityContextTokenProviderTest {
     }
 
     @Test(expected = OAuth2Exception.class)
-    public void testTokenUnavailable() throws Exception {
+    public void testTokenUnavailable() {
         SecurityContextHolder.clearContext();
         tokenProvider.obtainAccessToken(mock(OAuth2ProtectedResourceDetails.class), mock(AccessTokenRequest.class));
     }

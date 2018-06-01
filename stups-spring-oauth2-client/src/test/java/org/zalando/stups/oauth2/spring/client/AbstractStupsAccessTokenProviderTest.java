@@ -35,7 +35,7 @@ public class AbstractStupsAccessTokenProviderTest {
     private AbstractStupsAccessTokenProvider accessTokenProvider;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         accessTokenProvider = new AbstractStupsAccessTokenProvider() {
             @Override
             public OAuth2AccessToken obtainAccessToken(final OAuth2ProtectedResourceDetails details,
@@ -47,18 +47,18 @@ public class AbstractStupsAccessTokenProviderTest {
     }
 
     @Test
-    public void testSupportsResource() throws Exception {
+    public void testSupportsResource() {
         assertThat(accessTokenProvider.supportsResource(mock(OAuth2ProtectedResourceDetails.class))).isTrue();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testRefreshAccessToken() throws Exception {
+    public void testRefreshAccessToken() {
         accessTokenProvider.refreshAccessToken(mock(OAuth2ProtectedResourceDetails.class),
             mock(OAuth2RefreshToken.class), mock(AccessTokenRequest.class));
     }
 
     @Test
-    public void testSupportsRefresh() throws Exception {
+    public void testSupportsRefresh() {
         assertThat(accessTokenProvider.supportsRefresh(mock(OAuth2ProtectedResourceDetails.class))).isFalse();
     }
 }
