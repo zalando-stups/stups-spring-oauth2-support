@@ -34,13 +34,13 @@
 		<hystrix.version>1.5.12</hystrix.version>
 		<failsafe.version>1.1.0</failsafe.version>
 
-        <spring-security.version>4.2.6.RELEASE</spring-security.version>
-        <spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
+		<spring-security.version>4.2.6.RELEASE</spring-security.version>
+		<spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
 		<java.source>1.7</java.source>
 		<java.target>1.7</java.target>
 
-        <license.skip>false</license.skip>
-        <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
+		<license.skip>false</license.skip>
+		<license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 		<argLine />
 	</properties>
 
@@ -54,27 +54,27 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-core</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-config</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
 
-            <dependency>
-                <groupId>org.springframework.security.oauth</groupId>
-                <artifactId>spring-security-oauth2</artifactId>
-                <version>${spring-security-oauth2.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.springframework.security.oauth</groupId>
+				<artifactId>spring-security-oauth2</artifactId>
+				<version>${spring-security-oauth2.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -157,24 +157,24 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-        <plugins>
-                <plugin>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.1</version>
-                    <configuration combine.self="override">
-                        <additionalOptions>
-                            <additionalOption>-Xdoclint:none</additionalOption>
-                        </additionalOptions>
-                        <breakiterator>true</breakiterator>
-                        <header>${project.name}</header>
-                        <source>${source.level}</source>
-                        <quiet>true</quiet>
-                        <links>
-                            <link>http://docs.oracle.com/javase/7/docs/api</link>
-                        </links>
-                    </configuration>
-                </plugin>
-        </plugins>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration combine.self="override">
+					<additionalOptions>
+						<additionalOption>-Xdoclint:none</additionalOption>
+					</additionalOptions>
+					<breakiterator>true</breakiterator>
+					<header>${project.name}</header>
+					<source>${source.level}</source>
+					<quiet>true</quiet>
+					<links>
+						<link>http://docs.oracle.com/javase/7/docs/api</link>
+					</links>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<scm>
