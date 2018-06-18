@@ -22,21 +22,21 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 
-		<spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-		<guava.version>19.0</guava.version>
+		<spring-boot.version>1.5.14.RELEASE</spring-boot.version>
+		<guava.version>25.1-jre</guava.version>
 		<assertj.version>2.3.0</assertj.version>
 		<mockito.version>1.10.19</mockito.version>
-		<json-path.version>2.0.0</json-path.version>
+		<json-path.version>2.4.0</json-path.version>
 
-		<stups-tokens.version>0.9.9</stups-tokens.version>
-		<spring-boot-zalando-stups-tokens.version>0.9.6</spring-boot-zalando-stups-tokens.version>
-		<kio-client-java-spring.version>0.9.4</kio-client-java-spring.version>
+		<stups-tokens.version>0.11.0</stups-tokens.version>
+		<spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
+		<kio-client-java-spring.version>1.0.0</kio-client-java-spring.version>
 
 		<hystrix.version>1.5.12</hystrix.version>
 		<failsafe.version>1.0.4</failsafe.version>
 
-        <spring-security.version>4.2.1.RELEASE</spring-security.version>
-        <spring-security-oauth2.version>2.0.12.RELEASE</spring-security-oauth2.version>
+        <spring-security.version>4.2.7.RELEASE</spring-security.version>
+        <spring-security-oauth2.version>2.1.0.RELEASE</spring-security-oauth2.version>
 		<java.source>1.7</java.source>
 		<java.target>1.7</java.target>
 
