@@ -16,7 +16,7 @@
 package some.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -121,8 +121,8 @@ public abstract class AbstractTokenInfoResourceServerTokenServicesTest {
     protected RestOperations buildClient(final String token) {
         final AccessTokenProvider mockTokenProvider = mock(AccessTokenProvider.class);
 
-        when(mockTokenProvider.obtainAccessToken(any(OAuth2ProtectedResourceDetails.class),
-                any(AccessTokenRequest.class))).thenReturn(new DefaultOAuth2AccessToken(token));
+        when(mockTokenProvider.obtainAccessToken(isNull(OAuth2ProtectedResourceDetails.class),
+                isNull(AccessTokenRequest.class))).thenReturn(new DefaultOAuth2AccessToken(token));
 
         ClientHttpRequestFactory requestFactory = ClientHttpRequestFactorySelector.getRequestFactory();
 

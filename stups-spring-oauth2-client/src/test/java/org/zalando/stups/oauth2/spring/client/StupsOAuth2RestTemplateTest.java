@@ -16,7 +16,8 @@
 package org.zalando.stups.oauth2.spring.client;
 
 import static java.util.Collections.singletonMap;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.common.OAuth2AccessToken.ACCESS_TOKEN;
@@ -48,16 +49,16 @@ public class StupsOAuth2RestTemplateTest {
     private StupsOAuth2RestTemplate restTemplate;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mockAccessTokenProvider = mock(AccessTokenProvider.class);
         restTemplate = new StupsOAuth2RestTemplate(mockAccessTokenProvider);
         mockServer = MockRestServiceServer.createServer(restTemplate);
     }
 
     @Test
-    public void testRequestWithToken() throws Exception {
+    public void testRequestWithToken() {
         when(mockAccessTokenProvider //
-                .obtainAccessToken(any(OAuth2ProtectedResourceDetails.class), any(AccessTokenRequest.class))) //
+                .obtainAccessToken(isNull(OAuth2ProtectedResourceDetails.class), isNull(AccessTokenRequest.class))) //
                         .thenReturn(DefaultOAuth2AccessToken.valueOf(singletonMap(ACCESS_TOKEN, "1234567890")));
 
         mockServer.expect(requestTo("/")) //
@@ -107,7 +108,7 @@ public class StupsOAuth2RestTemplateTest {
     }
 
     @Test
-    public void intializeWithoutClientHttpRequestFactory() {
+    public void initializeWithoutClientHttpRequestFactory() {
         List<HttpMessageConverter<?>> converters = Lists.newArrayList();
         converters.add(new MappingJackson2HttpMessageConverter());
         new StupsOAuth2RestTemplate(mockAccessTokenProvider, converters);

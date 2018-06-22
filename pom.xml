@@ -22,26 +22,25 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 
-		<spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-		<guava.version>19.0</guava.version>
-		<assertj.version>2.3.0</assertj.version>
-		<mockito.version>1.10.19</mockito.version>
-		<json-path.version>2.0.0</json-path.version>
+		<spring-boot.version>1.5.14.RELEASE</spring-boot.version>
+		<guava.version>25.1-jre</guava.version>
+		<assertj.version>3.1.0</assertj.version>
+		<mockito.version>2.18.3</mockito.version>
+		<json-path.version>2.4.0</json-path.version>
 
-		<stups-tokens.version>0.9.9</stups-tokens.version>
-		<spring-boot-zalando-stups-tokens.version>0.9.6</spring-boot-zalando-stups-tokens.version>
-		<kio-client-java-spring.version>0.9.4</kio-client-java-spring.version>
+		<stups-tokens.version>0.11.0</stups-tokens.version>
+		<spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
 
 		<hystrix.version>1.5.12</hystrix.version>
-		<failsafe.version>1.0.4</failsafe.version>
+		<failsafe.version>1.1.0</failsafe.version>
 
-        <spring-security.version>4.2.1.RELEASE</spring-security.version>
-        <spring-security-oauth2.version>2.0.12.RELEASE</spring-security-oauth2.version>
+		<spring-security.version>4.2.7.RELEASE</spring-security.version>
+		<spring-security-oauth2.version>2.3.3.RELEASE</spring-security-oauth2.version>
 		<java.source>1.7</java.source>
 		<java.target>1.7</java.target>
 
-        <license.skip>false</license.skip>
-        <license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
+		<license.skip>false</license.skip>
+		<license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
 		<argLine />
 	</properties>
 
@@ -55,27 +54,27 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring-security.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-core</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-config</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>${spring-security.version}</version>
+			</dependency>
 
-            <dependency>
-                <groupId>org.springframework.security.oauth</groupId>
-                <artifactId>spring-security-oauth2</artifactId>
-                <version>${spring-security-oauth2.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>org.springframework.security.oauth</groupId>
+				<artifactId>spring-security-oauth2</artifactId>
+				<version>${spring-security-oauth2.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -88,7 +87,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
-				<artifactId>mockito-all</artifactId>
+				<artifactId>mockito-core</artifactId>
 				<version>${mockito.version}</version>
 			</dependency>
 			<dependency>
@@ -106,11 +105,6 @@
 				<groupId>org.zalando.stups</groupId>
 				<artifactId>spring-boot-zalando-stups-tokens</artifactId>
 				<version>${spring-boot-zalando-stups-tokens.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.zalando.stups</groupId>
-				<artifactId>kio-client-java-spring</artifactId>
-				<version>${kio-client-java-spring.version}</version>
 			</dependency>
 
 			<dependency>
@@ -133,7 +127,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.5.201505241946</version>
+					<version>0.8.1</version>
 					<executions>
 						<execution>
 							<id>default-prepare-agent</id>
@@ -163,22 +157,24 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-        <plugins>
-                <plugin>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.3</version>
-                    <configuration combine.self="override">
-                        <additionalparam>-Xdoclint:none</additionalparam>
-                        <breakiterator>true</breakiterator>
-                        <header>${project.name}</header>
-                        <source>${source.level}</source>
-                        <quiet>true</quiet>
-                        <links>
-                            <link>http://docs.oracle.com/javase/7/docs/api</link>
-                        </links>
-                    </configuration>
-                </plugin>
-        </plugins>
+		<plugins>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration combine.self="override">
+					<additionalOptions>
+						<additionalOption>-Xdoclint:none</additionalOption>
+					</additionalOptions>
+					<breakiterator>true</breakiterator>
+					<header>${project.name}</header>
+					<source>${source.level}</source>
+					<quiet>true</quiet>
+					<links>
+						<link>http://docs.oracle.com/javase/7/docs/api</link>
+					</links>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<scm>
