@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URL;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -85,7 +86,15 @@ public class DefaultTokenInfoRequestExecutor implements TokenInfoRequestExecutor
         logger.debug("Getting token-info from: {}", tokenInfoEndpointUri.toString());
 
         final RequestEntity<Void> entity = buildRequestEntity(tokenInfoEndpointUri, accessToken);
-        return restOperations.exchange(entity, TOKENINFO_MAP).getBody();
+        try {
+            return restOperations.exchange(entity, TOKENINFO_MAP).getBody();
+        } catch (Exception e) {
+            logger.warn("Unable to get authorisation from tokeninfo", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return errorResponse;
+        }
+
     }
 
     // @formatter:off

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
@@ -69,7 +70,7 @@ public class DefaultTokenInfoRequestExecutorTest {
         mockServer.verify();
     }
 
-    @Test(expected = InvalidTokenException.class)
+    @Test
     public void invalidTokenExceptionWhenEmptyBody(){
 
         DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://example.com/tokenInfo",
@@ -77,7 +78,8 @@ public class DefaultTokenInfoRequestExecutorTest {
         TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(),
                 new DefaultUserRolesProvider(), executor);
 
-        service.loadAuthentication("7364532");
+        OAuth2Authentication oAuth2Authentication = service.loadAuthentication("7364532");
+        Assertions.assertThat(oAuth2Authentication.getOAuth2Request().getScope()).isEmpty();
     }
 
     @Test
