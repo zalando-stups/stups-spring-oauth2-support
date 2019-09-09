@@ -28,10 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.client.response.DefaultResponseCreator;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
@@ -51,11 +51,8 @@ public class DefaultTokenInfoRequestExecutorTest {
     public void setUp() {
 
         restOperations = new RestTemplate();
-        mockServer = MockRestServiceServer.createServer(restOperations);
-
-        mockServer.expect(MockRestRequestMatchers.requestTo("http://example.com/tokenInfo"))
-                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess("", MediaType.APPLICATION_JSON));
+        whenTokenInfoReturnsResponse("http://example.com/tokenInfo",
+                MockRestResponseCreators.withSuccess("", MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -71,7 +68,7 @@ public class DefaultTokenInfoRequestExecutorTest {
     }
 
     @Test
-    public void invalidTokenExceptionWhenEmptyBody(){
+    public void EmptyAuthorisationWhenEmptyBody(){
 
         DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://example.com/tokenInfo",
                 restOperations);
@@ -83,9 +80,32 @@ public class DefaultTokenInfoRequestExecutorTest {
     }
 
     @Test
+    public void EmptyAuthorisationWhenExceptionOccured(){
+        whenTokenInfoReturnsResponse("http://404.com/tokenInfo", MockRestResponseCreators.withBadRequest());
+
+
+        DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://404.com/tokenInfo",
+                restOperations);
+        TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(),
+                new DefaultUserRolesProvider(), executor);
+
+        OAuth2Authentication oAuth2Authentication = service.loadAuthentication("7364532");
+        Assertions.assertThat(oAuth2Authentication.getOAuth2Request().getScope()).isEmpty();
+    }
+
+
+    @Test
     public void createRestTemplateWithEnumSet() {
         RestTemplate restTemplate = buildRestTemplate(EnumSet.of(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN));
         Assertions.assertThat(restTemplate).isNotNull();
     }
+
+    private void whenTokenInfoReturnsResponse(String s, DefaultResponseCreator defaultResponseCreator) {
+        mockServer = MockRestServiceServer.createServer(restOperations);
+        mockServer.expect(MockRestRequestMatchers.requestTo(s))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(defaultResponseCreator);
+    }
+
 
 }
