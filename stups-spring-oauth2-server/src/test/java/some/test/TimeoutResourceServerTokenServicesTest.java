@@ -17,6 +17,7 @@ package some.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 import java.io.IOException;
 
@@ -30,7 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -77,9 +77,10 @@ public class TimeoutResourceServerTokenServicesTest {// extends AbstractTokenInf
         });
         try {
             restTemplate.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
-            Assertions.fail("was expecting an 401");
+            Assertions.fail("was expecting an 403");
         } catch (HttpClientErrorException e) {
-            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(e.getStatusCode()).isEqualTo(FORBIDDEN);
+            assertThat(e.getResponseBodyAsString()).contains("insufficient_scope");
         }
     }
 
