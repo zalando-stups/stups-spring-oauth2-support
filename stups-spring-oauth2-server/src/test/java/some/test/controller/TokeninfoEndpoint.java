@@ -17,6 +17,7 @@ package some.test.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,13 @@ public class TokeninfoEndpoint {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(buildErrorResult("FORBIDDEN BY TOKENINFO"));
         } else if (accessTokenParameter.contains("400")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildErrorResult("BAD_REQUEST BY TOKENINFO"));
+        } else if (accessTokenParameter.contains("timeout")) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(result);
         } else {
             result = buildAccessToken(accessTokenParameter);
         }

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.zalando.stups</groupId>
 		<artifactId>stups-spring-oauth2-support</artifactId>
-		<version>1.0.23-SNAPSHOT</version>
+		<version>1.0.24-SNAPSHOT</version>
 	</parent>
 	<artifactId>stups-spring-oauth2-server</artifactId>
 
@@ -37,6 +37,11 @@
 		</dependency>
 
 		<!-- TESTING -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.zalando.stups</groupId>
 			<artifactId>tokens</artifactId>

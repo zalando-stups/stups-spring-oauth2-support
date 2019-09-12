@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>org.zalando.stups</groupId>
 	<artifactId>stups-spring-oauth2-support</artifactId>
-	<version>1.0.23-SNAPSHOT</version>
+	<version>1.0.24-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -22,7 +22,7 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 
-		<spring-boot.version>1.5.21.RELEASE</spring-boot.version>
+		<spring-boot.version>1.5.22.RELEASE</spring-boot.version>
 		<guava.version>25.1-jre</guava.version>
 		<assertj.version>3.1.0</assertj.version>
 		<mockito.version>2.18.3</mockito.version>
@@ -36,8 +36,9 @@
 
 		<spring-security.version>4.2.13.RELEASE</spring-security.version>
 		<spring-security-oauth2.version>2.3.6.RELEASE</spring-security-oauth2.version>
-		<java.source>1.7</java.source>
-		<java.target>1.7</java.target>
+
+		<java.source>1.8</java.source>
+		<java.target>1.8</java.target>
 
 		<license.skip>false</license.skip>
 		<license.header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</license.header>
@@ -127,7 +128,7 @@
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.8.1</version>
+					<version>0.8.4</version>
 					<executions>
 						<execution>
 							<id>default-prepare-agent</id>

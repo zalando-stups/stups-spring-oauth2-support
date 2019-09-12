@@ -15,6 +15,9 @@
  */
 package some.test.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,9 +33,13 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.oauth2.provider.error.OAuth2ExceptionRenderer;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.web.client.ResourceAccessException;
 import org.zalando.stups.oauth2.spring.security.expression.ExtendedOAuth2WebSecurityExpressionHandler;
 import org.zalando.stups.oauth2.spring.server.DefaultAuthenticationExtractor;
+import org.zalando.stups.oauth2.spring.server.DefaultTokenInfoRequestExecutor;
+import org.zalando.stups.oauth2.spring.server.TokenInfoRequestExecutor;
 import org.zalando.stups.oauth2.spring.server.TokenInfoResourceServerTokenServices;
+import org.zalando.stups.oauth2.spring.server.TokenResponseErrorHandler;
 
 /**
  * Configures the Resource-Server. We want the resources under '/secure/**'
@@ -87,6 +94,25 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
         return new TokenInfoResourceServerTokenServices(tokenInfoUri, new DefaultAuthenticationExtractor());
     }
 
+    @Profile("tokeninfoTimeout")
+    @Bean
+    public ResourceServerTokenServices tokeninfoTimeoutResourceTokenServices() {
+        return new TokenInfoResourceServerTokenServices(new TokenInfoRequestExecutor() {
+            private final TokenInfoRequestExecutor delegate = new DefaultTokenInfoRequestExecutor(tokenInfoUri, DefaultTokenInfoRequestExecutor.buildRestTemplate(TokenResponseErrorHandler.getDefault()));
+
+            @Override
+            public Map<String, Object> getMap(String accessToken) {
+                try {
+                    return delegate.getMap(accessToken);
+                } catch (ResourceAccessException e) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("error", "Read timed out");
+                    return map;
+                }
+            }
+        });
+    }
+
     /**
      * @return
      *
@@ -100,4 +126,23 @@ public class OAuthConfiguration extends ResourceServerConfigurerAdapter {
         return new TokenInfoResourceServerTokenServices(tokenInfoUri, new DefaultAuthenticationExtractor());
     }
 
+    static class TimeoutHandlingRequestExecutor implements TokenInfoRequestExecutor {
+
+        private final TokenInfoRequestExecutor delegate;
+
+        public TimeoutHandlingRequestExecutor(TokenInfoRequestExecutor delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Map<String, Object> getMap(String accessToken) {
+            try {
+                return delegate.getMap(accessToken);
+            } catch (ResourceAccessException e) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("error", "Read timed out");
+                return map;
+            }
+        }
+    }
 }
