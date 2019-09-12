@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Will become the new 'default'.
- *
  * @author jbellmann
  * @deprecated use {@link DefaultAuthenticationExtractor}
  */

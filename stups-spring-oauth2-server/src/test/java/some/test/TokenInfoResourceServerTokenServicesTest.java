@@ -65,7 +65,7 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
         try {
             restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
         }catch(HttpClientErrorException e){
-            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         }
     }
 
@@ -74,9 +74,9 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
         RestOperations restOperations = buildClient("400");
         try {
             restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
-            Assertions.fail("was expecting an 401");
+            Assertions.fail("was expecting an 403");
         } catch (HttpClientErrorException e) {
-            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         }
     }
 
@@ -85,9 +85,9 @@ public class TokenInfoResourceServerTokenServicesTest extends AbstractTokenInfoR
         RestOperations restOperations = buildClient("403");
         try {
             restOperations.getForEntity(getBasePath() + "/secured/hello/bello", String.class);
-            Assertions.fail("was expecting an 401");
+            Assertions.fail("was expecting an 403");
         } catch (HttpClientErrorException e) {
-            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         }
     }
 
