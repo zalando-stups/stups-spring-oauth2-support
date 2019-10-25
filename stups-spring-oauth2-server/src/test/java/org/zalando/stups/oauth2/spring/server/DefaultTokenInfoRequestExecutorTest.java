@@ -28,13 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.client.response.DefaultResponseCreator;
 import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
-import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 
 /**
  * #30, NPE while tokenInfoResponse (Map<String,Object>) is null.
@@ -66,33 +64,6 @@ public class DefaultTokenInfoRequestExecutorTest {
 
         mockServer.verify();
     }
-
-    @Test
-    public void EmptyAuthorisationWhenEmptyBody(){
-
-        DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://example.com/tokenInfo",
-                restOperations);
-        TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(),
-                new DefaultUserRolesProvider(), executor);
-
-        OAuth2Authentication oAuth2Authentication = service.loadAuthentication("7364532");
-        Assertions.assertThat(oAuth2Authentication.getOAuth2Request().getScope()).isEmpty();
-    }
-
-    @Test
-    public void EmptyAuthorisationWhenExceptionOccured(){
-        whenTokenInfoReturnsResponse("http://404.com/tokenInfo", MockRestResponseCreators.withBadRequest());
-
-
-        DefaultTokenInfoRequestExecutor executor = new DefaultTokenInfoRequestExecutor("http://404.com/tokenInfo",
-                restOperations);
-        TokenInfoResourceServerTokenServices service = new TokenInfoResourceServerTokenServices("test", new DefaultAuthenticationExtractor(),
-                new DefaultUserRolesProvider(), executor);
-
-        OAuth2Authentication oAuth2Authentication = service.loadAuthentication("7364532");
-        Assertions.assertThat(oAuth2Authentication.getOAuth2Request().getScope()).isEmpty();
-    }
-
 
     @Test
     public void createRestTemplateWithEnumSet() {
