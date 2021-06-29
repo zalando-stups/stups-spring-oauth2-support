@@ -15,27 +15,19 @@
  */
 package org.zalando.stups.oauth2.spring.server;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
-
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
 import org.springframework.web.client.RestTemplate;
-
 import org.zalando.stups.oauth2.spring.authorization.DefaultUserRolesProvider;
 import org.zalando.stups.oauth2.spring.authorization.UserRolesProvider;
 
@@ -62,8 +54,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
     private final TokenInfoRequestExecutor tokenInfoRequestExecutor;
 
     private final UserRolesProvider userRolesProvider;
-
-    private final OAuth2Authentication authWithoutScopes;
 
     public TokenInfoResourceServerTokenServices(final String tokenInfoEndpointUrl) {
         this(tokenInfoEndpointUrl, CLIENT_ID_NOT_NEEDED);
@@ -111,13 +101,6 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         this.userRolesProvider = userRolesProvider;
         this.authenticationExtractor = authenticationExtractor;
         this.clientId = clientId;
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(null, null, Collections.<GrantedAuthority>emptyList());
-        OAuth2Request request = new OAuth2Request(null,
-                clientId,null, true, Collections.<String>emptySet(),
-                null, null, null, null);
-
-        authWithoutScopes = new OAuth2Authentication(request, usernamePasswordAuthenticationToken);
     }
 
     @Override
@@ -131,7 +114,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
         final Map<String, Object> map = getMap(accessToken);
         if (map == null) {
             logger.warn("'null' is not the expected response by TokenInfoEndpoint");
-            return authWithoutScopes;
+            throw new InvalidTokenException("Unable to fetch tokeninfo.");
         }
 
         if (map.containsKey("error")) {
@@ -141,7 +124,7 @@ public class TokenInfoResourceServerTokenServices implements ResourceServerToken
             }
             logger.warn("tokeninfo returned error: " + description);
 
-            return authWithoutScopes;
+            throw new InvalidTokenException(description);
         }
 
         return this.authenticationExtractor.extractAuthentication(map, clientId, userRolesProvider);
