@@ -34,7 +34,7 @@
 		<hystrix.version>1.5.12</hystrix.version>
 		<failsafe.version>1.1.0</failsafe.version>
 
-		<spring-security.version>4.2.13.RELEASE</spring-security.version>
+		<spring-security.version>5.5.7</spring-security.version>
 		<spring-security-oauth2.version>2.3.6.RELEASE</spring-security-oauth2.version>
 
 		<java.source>1.8</java.source>
